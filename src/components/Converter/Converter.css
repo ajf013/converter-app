@@ -1,0 +1,94 @@
+.converter-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+    padding: 40px 20px;
+    min-height: 60vh;
+}
+
+.converter-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 30px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.3s;
+}
+
+.converter-card:hover {
+    transform: translateY(-5px);
+}
+
+.dropzone {
+    border: 2px dashed rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 40px;
+    width: 100%;
+    text-align: center;
+    cursor: pointer;
+    margin: 20px 0;
+    transition: all 0.3s;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.dropzone.active,
+.dropzone:hover {
+    border-color: #2185d0;
+    background: rgba(33, 133, 208, 0.1);
+}
+
+.controls {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.result-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Dark Mode Overrides */
+.dark-mode .converter-card {
+    background: rgba(0, 0, 0, 0.4);
+    /* More transparent for better glass effect */
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px) saturate(180%);
+    color: white;
+}
+
+.dark-mode .dropzone {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.3);
+    color: #ddd;
+}
+
+.dark-mode .ui.header {
+    color: white;
+}
+
+.dark-mode .ui.header .icon {
+    color: #00dbde;
+}
