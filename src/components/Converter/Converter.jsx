@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { Icon, Dropdown, Button, Header as SemanticHeader, Progress, Message } from 'semantic-ui-react';
 import { saveAs } from 'file-saver';
 import { motion } from 'framer-motion';
-import { convertImage, convertSpreadsheet, convertDocument, convertAudio, loadFFmpeg } from '../../utils/conversionUtils';
+import { convertImage, convertSpreadsheet, convertDocument, convertAudio, convertYouTubeToMp3, loadFFmpeg } from '../../utils/conversionUtils';
 import './Converter.css';
 
 const imageOptions = [
@@ -50,6 +50,20 @@ const Converter = () => {
     const [audioProgress, setAudioProgress] = useState(0);
     const [ffmpegLoaded, setFfmpegLoaded] = useState(false);
     const [ffmpegError, setFfmpegError] = useState(null);
+    // const [audioMode, setAudioMode] = useState('file'); // Removed in favor of separate card
+
+    // --- YouTube State ---
+    const [youtubeUrl, setYoutubeUrl] = useState('');
+    const [apiKey, setApiKey] = useState(import.meta.env.VITE_RAPIDAPI_KEY || localStorage.getItem('rapidApiKey') || '');
+    const [convertingYoutube, setConvertingYoutube] = useState(false);
+    const [convertedYoutube, setConvertedYoutube] = useState(null);
+
+    // Save API Key to localStorage when it changes
+    useEffect(() => {
+        if (apiKey) {
+            localStorage.setItem('rapidApiKey', apiKey);
+        }
+    }, [apiKey]);
 
     // Load FFmpeg on mount
     useEffect(() => {
@@ -179,6 +193,21 @@ const Converter = () => {
         }
     };
 
+    const handleConvertYouTube = async () => {
+        if (!youtubeUrl || !apiKey) return;
+        setConvertingYoutube(true);
+        setConvertedYoutube(null);
+        try {
+            const blob = await convertYouTubeToMp3(youtubeUrl, apiKey);
+            setConvertedYoutube(blob);
+        } catch (err) {
+            console.error(err);
+            alert('YouTube Conversion Failed: ' + err.message);
+        } finally {
+            setConvertingYoutube(false);
+        }
+    };
+
     return (
         <div className="converter-container">
             {/* Image Section */}
@@ -263,7 +292,6 @@ const Converter = () => {
                 transition={{ delay: 0.4 }}
             >
                 <SemanticHeader as='h2' icon textAlign='center'>
-                    <Icon name='music' circular />
                     <SemanticHeader.Content>Music Converter</SemanticHeader.Content>
                 </SemanticHeader>
 
@@ -299,6 +327,44 @@ const Converter = () => {
                     <div className="result-area">
                         <Icon name="check circle" color="green" size="large" />
                         <Button color="green" onClick={() => saveAs(convertedAudio, `audio.${audioFormat}`)}>Download {audioFormat.toUpperCase()}</Button>
+                    </div>
+                )}
+            </motion.div>
+
+            {/* YouTube Section */}
+            <motion.div
+                className="converter-card"
+                initial={{ x: 50, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.5 }}
+            >
+                <SemanticHeader as='h2' icon textAlign='center'>
+                    <Icon name='youtube' circular color='red' />
+                    <SemanticHeader.Content>YouTube to MP3</SemanticHeader.Content>
+                </SemanticHeader>
+
+                <div className="youtube-section" style={{ textAlign: 'center' }}>
+                    <div className="ui input fluid" style={{ marginBottom: '10px' }}>
+                        <input
+                            type="text"
+                            placeholder="Enter YouTube URL..."
+                            value={youtubeUrl}
+                            onChange={(e) => setYoutubeUrl(e.target.value)}
+                        />
+                    </div>
+                    <Button
+                        primary
+                        onClick={handleConvertYouTube}
+                        loading={convertingYoutube}
+                        disabled={!youtubeUrl}
+                    >
+                        Convert to MP3
+                    </Button>
+                </div>
+                {convertedYoutube && (
+                    <div className="result-area">
+                        <Icon name="check circle" color="green" size="large" />
+                        <Button color="green" onClick={() => saveAs(convertedYoutube, 'audio.mp3')}>Download MP3</Button>
                     </div>
                 )}
             </motion.div>

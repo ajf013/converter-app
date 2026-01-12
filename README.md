@@ -29,7 +29,15 @@ Handle document and spreadsheet conversions with ease.
 - **Technology**: Powered by `ffmpeg.wasm`.
 - **Performance**: Multi-threaded encoding (requires COEP headers).
 
-### 4. 🎨 Premium Design
+### 4. 📺 YouTube to MP3 Converter
+**New Feature!** Convert and download audio directly from YouTube.
+- **Easy Storage**: API Key stored locally for convenience.
+- **Fast Conversion**: Powered by RapidAPI (YouTube MP3).
+- **Format**: High-quality MP3 output.
+
+![YouTube Converter UI](public/screenshots/youtube-feature.png)
+
+### 5. 🎨 Premium Design
 - **Glassmorphism**: Beautiful frosted glass cards and UI elements.
 - **Animations**: Smooth entrance animations (Framer Motion) and hover effects.
 - **Themes**: Fully functional **Dark/Light mode** toggle with vibrant animated gradients.
@@ -38,7 +46,7 @@ Handle document and spreadsheet conversions with ease.
 
 ![Light Mode Dashboard](public/screenshots/dashboard-light.png)
 
-### 5. 📱 PWA Support
+### 6. 📱 PWA Support
 - Installable as a native-like app on Desktop and Mobile.
 - Offline capability enabled via `vite-plugin-pwa`.
 
