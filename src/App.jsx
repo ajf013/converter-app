@@ -6,6 +6,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import Converter from './components/Converter/Converter';
+import ReloadPrompt from './components/ReloadPrompt/ReloadPrompt';
 import './App.css';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
         <Header />
         <main className="main-content">
           <Converter />
+          <ReloadPrompt />
         </main>
         <Footer />
       </div>

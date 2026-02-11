@@ -4,7 +4,7 @@ import { useDropzone } from 'react-dropzone';
 import { Icon, Dropdown, Button, Header as SemanticHeader, Progress, Message } from 'semantic-ui-react';
 import { saveAs } from 'file-saver';
 import { motion } from 'framer-motion';
-import { convertImage, convertSpreadsheet, convertDocument, convertAudio, convertYouTubeToMp3, cutAudio, joinAudio, loadFFmpeg } from '../../utils/conversionUtils';
+import { convertImage, convertSpreadsheet, convertDocument, convertAudio, cutAudio, joinAudio, loadFFmpeg } from '../../utils/conversionUtils';
 import './Converter.css';
 
 const imageOptions = [
@@ -75,13 +75,6 @@ const Converter = () => {
 
     // --- YouTube State ---
     const [youtubeUrl, setYoutubeUrl] = useState('');
-    // MP3 Converter Key
-    const [mp3ApiKey] = useState(import.meta.env.VITE_RAPIDAPI_KEY || localStorage.getItem('rapidApiKey') || '');
-    // Video Downloader Key
-    // Video Downloader Key (Removed as per request, keeping variable for cleanup if needed or just remove)
-    // const [videoApiKey] = useState(import.meta.env.VITE_RAPIDAPI_VIDEO_KEY || localStorage.getItem('rapidApiVideoKey') || import.meta.env.VITE_RAPIDAPI_KEY || '');
-    const [convertingYoutube, setConvertingYoutube] = useState(false);
-    const [convertedYoutube, setConvertedYoutube] = useState(null);
 
     // --- OCR State ---
     const [ocrFile, setOcrFile] = useState(null);
@@ -111,15 +104,6 @@ const Converter = () => {
     const [extractFormat, setExtractFormat] = useState('mp3');
     const [extracting, setExtracting] = useState(false);
     const [extractedAudio, setExtractedAudio] = useState(null);
-
-    // --- YouTube Video Downloader State ---
-
-
-    // Save API Key to localStorage when it changes
-    // Save API Keys to localStorage if they exist (optional, mostly relevant if we had input fields)
-    useEffect(() => {
-        if (mp3ApiKey) localStorage.setItem('rapidApiKey', mp3ApiKey);
-    }, [mp3ApiKey]);
 
     // Load FFmpeg on mount
     useEffect(() => {
@@ -249,19 +233,24 @@ const Converter = () => {
         }
     };
 
-    const handleConvertYouTube = async () => {
-        if (!youtubeUrl || !mp3ApiKey) return;
-        setConvertingYoutube(true);
-        setConvertedYoutube(null);
-        try {
-            const blob = await convertYouTubeToMp3(youtubeUrl, mp3ApiKey);
-            setConvertedYoutube(blob);
-        } catch (err) {
-            console.error(err);
-            alert('YouTube Conversion Failed: ' + err.message);
-        } finally {
-            setConvertingYoutube(false);
+    const handleConvertYouTube = () => {
+        if (!youtubeUrl) return;
+
+        // Extract Video ID
+        let videoId = '';
+        if (youtubeUrl.includes('youtu.be/')) {
+            videoId = youtubeUrl.split('youtu.be/')[1].split('?')[0];
+        } else if (youtubeUrl.includes('v=')) {
+            videoId = youtubeUrl.split('v=')[1].split('&')[0];
         }
+
+        if (!videoId) {
+            alert("Invalid YouTube URL");
+            return;
+        }
+
+        // Open Y2Mate in a new tab with the video ID hash for auto-conversion
+        window.open(`https://v1.y2mate.nu/#${videoId}`, '_blank');
     };
 
     // --- OCR Handlers ---
@@ -577,18 +566,11 @@ const Converter = () => {
                     <Button
                         primary
                         onClick={handleConvertYouTube}
-                        loading={convertingYoutube}
                         disabled={!youtubeUrl}
                     >
                         Convert to MP3
                     </Button>
                 </div>
-                {convertedYoutube && (
-                    <div className="result-area">
-                        <Icon name="check circle" color="green" size="large" />
-                        <Button color="green" onClick={() => saveAs(convertedYoutube, 'audio.mp3')}>Download MP3</Button>
-                    </div>
-                )}
             </motion.div>
 
             {/* OCR Section */}
