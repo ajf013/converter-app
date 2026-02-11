@@ -236,21 +236,15 @@ const Converter = () => {
     const handleConvertYouTube = () => {
         if (!youtubeUrl) return;
 
-        // Extract Video ID
-        let videoId = '';
-        if (youtubeUrl.includes('youtu.be/')) {
-            videoId = youtubeUrl.split('youtu.be/')[1].split('?')[0];
-        } else if (youtubeUrl.includes('v=')) {
-            videoId = youtubeUrl.split('v=')[1].split('&')[0];
-        }
-
-        if (!videoId) {
-            alert("Invalid YouTube URL");
+        // Basic validation: must contain a youtube domain or be a valid URL
+        if (!youtubeUrl.includes('youtube.com') && !youtubeUrl.includes('youtu.be')) {
+            alert("Please enter a valid YouTube URL");
             return;
         }
 
-        // Open Y2Mate in a new tab with the video ID hash for auto-conversion
-        window.open(`https://v1.y2mate.nu/#${videoId}`, '_blank');
+        // Open cobalt.tools in a new tab with the URL pre-filled in the hash
+        // This project is ad-free and open-source, providing a much better UX.
+        window.open(`https://cobalt.tools/#${youtubeUrl}`, '_blank');
     };
 
     // --- OCR Handlers ---
