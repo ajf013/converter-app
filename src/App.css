@@ -23,7 +23,6 @@ body {
 
 /* Dark Mode Background */
 .app-container.dark-mode {
-  /* Moving from Dark Blue to Vibrant Green to maintain that "Green" feel */
   background: linear-gradient(-45deg, #051937, #004d7a, #008793, #00bf72, #123524);
   background-size: 400% 400%;
   animation: gradientBG 15s ease infinite;

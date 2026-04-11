@@ -71,7 +71,6 @@ const Converter = () => {
     const [audioProgress, setAudioProgress] = useState(0);
     const [ffmpegLoaded, setFfmpegLoaded] = useState(false);
     const [ffmpegError, setFfmpegError] = useState(null);
-    // const [audioMode, setAudioMode] = useState('file'); // Removed in favor of separate card
 
     // --- YouTube State ---
     const [youtubeUrl, setYoutubeUrl] = useState('');
@@ -236,15 +235,12 @@ const Converter = () => {
     const handleConvertYouTube = () => {
         if (!youtubeUrl) return;
 
-        // Basic validation: must contain a youtube domain or be a valid URL
         if (!youtubeUrl.includes('youtube.com') && !youtubeUrl.includes('youtu.be')) {
             alert("Please enter a valid YouTube URL");
             return;
         }
 
-        // Open cobalt.tools in a new tab with the URL pre-filled in the hash
-        // This project is ad-free and open-source, providing a much better UX.
-        window.open(`https://cobalt.tools/#${youtubeUrl}`, '_blank');
+        window.open(`https://downloader.fcruz.org/#${youtubeUrl}`, '_blank');
     };
 
     // --- OCR Handlers ---
@@ -306,18 +302,16 @@ const Converter = () => {
             setCutFile(file);
             setCutResult(null);
 
-            // Auto-detect duration
             const tempUrl = URL.createObjectURL(file);
             const audio = new Audio(tempUrl);
             audio.onloadedmetadata = () => {
                 setStartTime("0:00");
                 setEndTime(formatTime(audio.duration));
-                URL.revokeObjectURL(tempUrl); // Cleanup temp url immediately
+                URL.revokeObjectURL(tempUrl);
             };
         }
     }, []);
 
-    // Manage Audio Player URL based on cutFile
     useEffect(() => {
         if (cutFile) {
             const url = URL.createObjectURL(cutFile);
@@ -337,7 +331,6 @@ const Converter = () => {
         if (!cutFile) return;
         setCuttingAudio(true);
         try {
-            // Default to mp3 for cut output or original extension
             const ext = cutFile.name.split('.').pop() || 'mp3';
             const sTime = parseTime(startTime);
             const eTime = parseTime(endTime);
@@ -351,8 +344,6 @@ const Converter = () => {
         }
     };
 
-    // --- Audio Joiner Handlers ---
-    // Using standard inputs for explicit buttons
     const handleJoinFileChange = (e, index) => {
         if (e.target.files && e.target.files[0]) {
             const newFiles = [...joinFiles];
@@ -370,7 +361,6 @@ const Converter = () => {
         }
         setJoiningAudio(true);
         try {
-            // Default to mp3 for join output
             const ext = 'mp3';
             const blob = await joinAudio(filesToJoin, ext);
             setJoinResult({ blob, ext });
@@ -382,7 +372,6 @@ const Converter = () => {
         }
     };
 
-    // --- Video Extractor Handlers ---
     const onDropVideo = useCallback((acceptedFiles) => {
         if (acceptedFiles?.length) {
             setVideoFile(acceptedFiles[0]);
@@ -399,7 +388,6 @@ const Converter = () => {
         if (!videoFile) return;
         setExtracting(true);
         try {
-            // Reusing convertAudio as it uses ffmpeg which handles video inputs
             const blob = await convertAudio(videoFile, extractFormat, null);
             setExtractedAudio(blob);
         } catch (err) {
@@ -410,43 +398,31 @@ const Converter = () => {
         }
     };
 
-
-
     return (
         <div className="converter-container">
             {/* Image Section */}
             <motion.div
                 className="converter-card"
-                initial={{ x: -50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
             >
-                <SemanticHeader as='h2' icon textAlign='center'>
-                    <Icon name='image' circular />
-                    <SemanticHeader.Content>Image Converter</SemanticHeader.Content>
-                </SemanticHeader>
-
+                <div className="icon-wrapper">
+                    <Icon name='image' size='huge' />
+                </div>
+                <SemanticHeader as='h2'>Image Converter</SemanticHeader>
                 <div {...getImgRoot()} className={`dropzone ${isDragImg ? 'active' : ''}`}>
                     <input {...getImgInput()} />
                     {imageFile ? <p>{imageFile.name}</p> : <p>Drag & Drop Image</p>}
                 </div>
-
                 <div className="controls">
-                    <Dropdown
-                        selection
-                        options={imageOptions}
-                        value={imageFormat}
-                        onChange={(_, { value }) => setImageFormat(value)}
-                        placeholder='Select Format'
-                    />
-                    <Button primary onClick={handleConvertImage} loading={convertingImg} disabled={!imageFile}>
-                        Convert
-                    </Button>
+                    <Dropdown selection options={imageOptions} value={imageFormat} onChange={(_, { value }) => setImageFormat(value)} />
+                    <Button primary onClick={handleConvertImage} loading={convertingImg} disabled={!imageFile}>Convert</Button>
                 </div>
                 {convertedImg && (
                     <div className="result-area">
-                        <Icon name="check circle" color="green" size="large" />
-                        <Button color="green" onClick={() => saveAs(convertedImg, `image.${imageFormat}`)}>Download {imageFormat.toUpperCase()}</Button>
+                        <Icon name="check circle" color="green" />
+                        <Button color="green" size="small" onClick={() => saveAs(convertedImg, `image.${imageFormat}`)}>Download</Button>
                     </div>
                 )}
             </motion.div>
@@ -454,36 +430,26 @@ const Converter = () => {
             {/* Document Section */}
             <motion.div
                 className="converter-card"
-                initial={{ y: 50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3 }}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
             >
-                <SemanticHeader as='h2' icon textAlign='center'>
-                    <Icon name='file alternate' circular />
-                    <SemanticHeader.Content>Document Converter</SemanticHeader.Content>
-                </SemanticHeader>
-
+                <div className="icon-wrapper">
+                    <Icon name='file alternate' size='huge' />
+                </div>
+                <SemanticHeader as='h2'>Document Converter</SemanticHeader>
                 <div {...getDocRoot()} className={`dropzone ${isDragDoc ? 'active' : ''}`}>
                     <input {...getDocInput()} />
                     {docFile ? <p>{docFile.name}</p> : <p>Drag & Drop Doc/XLS</p>}
                 </div>
-
                 <div className="controls">
-                    <Dropdown
-                        selection
-                        options={availableDocFormats}
-                        value={docFormat}
-                        onChange={(_, { value }) => setDocFormat(value)}
-                        placeholder='Select Format'
-                    />
-                    <Button primary onClick={handleConvertDoc} loading={convertingDoc} disabled={!docFile}>
-                        Convert
-                    </Button>
+                    <Dropdown selection options={availableDocFormats} value={docFormat} onChange={(_, { value }) => setDocFormat(value)} />
+                    <Button primary onClick={handleConvertDoc} loading={convertingDoc} disabled={!docFile}>Convert</Button>
                 </div>
                 {convertedDoc && (
                     <div className="result-area">
-                        <Icon name="check circle" color="green" size="large" />
-                        <Button color="green" onClick={() => saveAs(convertedDoc, `doc.${docFormat}`)}>Download {docFormat.toUpperCase()}</Button>
+                        <Icon name="check circle" color="green" />
+                        <Button color="green" size="small" onClick={() => saveAs(convertedDoc, `doc.${docFormat}`)}>Download</Button>
                     </div>
                 )}
             </motion.div>
@@ -491,47 +457,28 @@ const Converter = () => {
             {/* Audio Section */}
             <motion.div
                 className="converter-card"
-                initial={{ x: 50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.4 }}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
             >
-                <SemanticHeader as='h2' icon textAlign='center'>
-                    <Icon name='music' circular />
-                    <SemanticHeader.Content>Music Converter</SemanticHeader.Content>
-                </SemanticHeader>
-
+                <div className="icon-wrapper">
+                    <Icon name='music' size='huge' />
+                </div>
+                <SemanticHeader as='h2'>Music Converter</SemanticHeader>
                 <div {...getAudioRoot()} className={`dropzone ${isDragAudio ? 'active' : ''}`}>
                     <input {...getAudioInput()} />
                     {audioFile ? <p>{audioFile.name}</p> : <p>Drag & Drop Audio</p>}
                 </div>
-
-                {ffmpegError ? (
-                    <Message negative size='small'>
-                        <Message.Header>Not Supported</Message.Header>
-                        <p>{ffmpegError}</p>
-                    </Message>
-                ) : (
-                    <>
-                        <div className="controls">
-                            <Dropdown
-                                selection
-                                options={audioOptions}
-                                value={audioFormat}
-                                onChange={(_, { value }) => setAudioFormat(value)}
-                                placeholder='Select Format'
-                            />
-                            <Button primary onClick={handleConvertAudio} loading={convertingAudio} disabled={!audioFile || !ffmpegLoaded}>
-                                Convert
-                            </Button>
-                        </div>
-                        {convertingAudio && <Progress percent={audioProgress} indicating size='tiny' />}
-                    </>
-                )}
-
+                <div className="controls">
+                    <Dropdown selection options={audioOptions} value={audioFormat} onChange={(_, { value }) => setAudioFormat(value)} />
+                    <Button primary onClick={handleConvertAudio} loading={convertingAudio} disabled={!audioFile || !ffmpegLoaded}>Convert</Button>
+                </div>
+                {convertingAudio && <Progress percent={audioProgress} indicating size='tiny' />}
+                {ffmpegError && <Message negative size='tiny'>{ffmpegError}</Message>}
                 {convertedAudio && (
                     <div className="result-area">
-                        <Icon name="check circle" color="green" size="large" />
-                        <Button color="green" onClick={() => saveAs(convertedAudio, `audio.${audioFormat}`)}>Download {audioFormat.toUpperCase()}</Button>
+                        <Icon name="check circle" color="green" />
+                        <Button color="green" size="small" onClick={() => saveAs(convertedAudio, `audio.${audioFormat}`)}>Download</Button>
                     </div>
                 )}
             </motion.div>
@@ -539,82 +486,46 @@ const Converter = () => {
             {/* YouTube Section */}
             <motion.div
                 className="converter-card"
-                initial={{ x: 50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.5 }}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
             >
-                <SemanticHeader as='h2' icon textAlign='center'>
-                    <Icon name='youtube' circular color='red' />
-                    <SemanticHeader.Content>YouTube to MP3</SemanticHeader.Content>
-                </SemanticHeader>
-
-                <div className="youtube-section" style={{ textAlign: 'center' }}>
-                    <div className="ui input fluid" style={{ marginBottom: '10px' }}>
-                        <input
-                            type="text"
-                            placeholder="Enter YouTube URL..."
-                            value={youtubeUrl}
-                            onChange={(e) => setYoutubeUrl(e.target.value)}
-                        />
-                    </div>
-                    <Button
-                        primary
-                        onClick={handleConvertYouTube}
-                        disabled={!youtubeUrl}
-                    >
-                        Convert to MP3
-                    </Button>
+                <div className="icon-wrapper">
+                    <Icon name='youtube' color='red' size='huge' />
                 </div>
+                <SemanticHeader as='h2'>YouTube to MP3</SemanticHeader>
+                <div className="ui input fluid" style={{ marginBottom: '20px' }}>
+                    <input type="text" placeholder="Enter YouTube URL..." value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)} />
+                </div>
+                <Button primary fluid onClick={handleConvertYouTube} disabled={!youtubeUrl}>Convert to MP3</Button>
             </motion.div>
 
             {/* OCR Section */}
             <motion.div
                 className="converter-card"
-                initial={{ y: 50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.6 }}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
             >
-                <SemanticHeader as='h2' icon textAlign='center'>
-                    <Icon name='file text' circular />
-                    <SemanticHeader.Content>Image to Text (OCR)</SemanticHeader.Content>
-                </SemanticHeader>
-
+                <div className="icon-wrapper">
+                    <Icon name='file text' size='huge' />
+                </div>
+                <SemanticHeader as='h2'>Image to Text (OCR)</SemanticHeader>
                 <div {...getOcrRoot()} className={`dropzone ${isDragOcr ? 'active' : ''}`}>
                     <input {...getOcrInput()} />
                     {ocrFile ? <p>{ocrFile.name}</p> : <p>Drag & Drop Image for OCR</p>}
                 </div>
-
                 <div className="controls">
-                    <Dropdown
-                        selection
-                        options={ocrOptions}
-                        value={ocrLang}
-                        onChange={(_, { value }) => setOcrLang(value)}
-                        placeholder='Select Language'
-                    />
-                    <Button primary onClick={handleConvertOCR} loading={convertingOcr} disabled={!ocrFile}>
-                        Extract Text
-                    </Button>
+                    <Dropdown selection options={ocrOptions} value={ocrLang} onChange={(_, { value }) => setOcrLang(value)} />
+                    <Button primary onClick={handleConvertOCR} loading={convertingOcr} disabled={!ocrFile}>Extract</Button>
                 </div>
                 {convertingOcr && <Progress percent={ocrProgress} indicating size='tiny' />}
-
                 {ocrText && (
                     <div className="result-area ocr-result">
-                        <Message>
-                            <Message.Header>Extracted Text:</Message.Header>
-                            <div style={{ maxHeight: '150px', overflowY: 'auto', whiteSpace: 'pre-wrap', marginTop: '10px' }}>
-                                {ocrText}
-                            </div>
-                        </Message>
-                        <div className="ocr-actions" style={{ marginTop: '10px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                            <Button icon labelPosition='left' onClick={handleCopyText}>
-                                <Icon name='copy' />
-                                Copy
-                            </Button>
-                            <Button icon labelPosition='left' color='green' onClick={handleDownloadText}>
-                                <Icon name='download' />
-                                Download .txt
-                            </Button>
+                        <div style={{ maxHeight: '100px', overflowY: 'auto', fontSize: '0.9rem', marginBottom: '10px' }}>{ocrText}</div>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <Button size='mini' onClick={handleCopyText}>Copy</Button>
+                            <Button size='mini' color='green' onClick={handleDownloadText}>Download</Button>
                         </div>
                     </div>
                 )}
@@ -623,79 +534,34 @@ const Converter = () => {
             {/* Audio Cutter Section */}
             <motion.div
                 className="converter-card"
-                initial={{ x: -50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.7 }}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
             >
-                <SemanticHeader as='h2' icon textAlign='center'>
-                    <Icon name='cut' circular />
-                    <SemanticHeader.Content>Audio Cutter</SemanticHeader.Content>
-                </SemanticHeader>
-
+                <div className="icon-wrapper">
+                    <Icon name='cut' size='huge' />
+                </div>
+                <SemanticHeader as='h2'>Audio Cutter</SemanticHeader>
                 <div {...getCutRoot()} className={`dropzone ${isDragCut ? 'active' : ''}`}>
                     <input {...getCutInput()} />
                     {cutFile ? <p>{cutFile.name}</p> : <p>Drag & Drop Audio to Cut</p>}
                 </div>
-
-                {audioPlayerUrl && (
-                    <div style={{ margin: '15px 0', textAlign: 'center', width: '100%' }}>
-                        <audio
-                            key={audioPlayerUrl}
-                            ref={audioRef}
-                            controls
-                            src={audioPlayerUrl}
-                            style={{ width: '100%', outline: 'none' }}
-                        />
-                    </div>
-                )}
-
-                <div className="controls" style={{ display: 'flex', gap: '20px', alignItems: 'flex-end', justifyContent: 'center', flexWrap: 'wrap' }}>
-                    <div style={{ textAlign: 'left' }}>
-                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Start Time (min:sec)</label>
-                        <div className="ui input action">
-                            <input
-                                type="text"
-                                placeholder="0:00"
-                                value={startTime}
-                                onChange={(e) => setStartTime(e.target.value)}
-                                style={{ width: '100px' }}
-                            />
-                            <Button icon onClick={() => {
-                                if (audioRef.current) setStartTime(formatTime(audioRef.current.currentTime));
-                            }} title="Use Current Time">
-                                <Icon name="clock" />
-                            </Button>
-                        </div>
-                    </div>
-                    <div style={{ textAlign: 'left' }}>
-                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>End Time (min:sec)</label>
-                        <div className="ui input action">
-                            <input
-                                type="text"
-                                placeholder="0:00"
-                                value={endTime}
-                                onChange={(e) => setEndTime(e.target.value)}
-                                style={{ width: '100px' }}
-                            />
-                            <Button icon onClick={() => {
-                                if (audioRef.current) setEndTime(formatTime(audioRef.current.currentTime));
-                            }} title="Use Current Time">
-                                <Icon name="clock" />
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-
+                {audioPlayerUrl && <audio controls src={audioPlayerUrl} ref={audioRef} style={{ width: '100%', marginBottom: '10px' }} />}
                 <div className="controls">
-                    <Button primary onClick={handleCutAudio} loading={cuttingAudio} disabled={!cutFile || !ffmpegLoaded}>
-                        Cut Audio
-                    </Button>
+                    <div className="ui input action small">
+                        <input type="text" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+                        <Button icon onClick={() => audioRef.current && setStartTime(formatTime(audioRef.current.currentTime))}><Icon name='clock' /></Button>
+                    </div>
+                    <div className="ui input action small">
+                        <input type="text" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+                        <Button icon onClick={() => audioRef.current && setEndTime(formatTime(audioRef.current.currentTime))}><Icon name='clock' /></Button>
+                    </div>
+                    <Button primary onClick={handleCutAudio} loading={cuttingAudio} disabled={!cutFile || !ffmpegLoaded}>Cut</Button>
                 </div>
-
                 {cutResult && (
                     <div className="result-area">
-                        <Icon name="check circle" color="green" size="large" />
-                        <Button color="green" onClick={() => saveAs(cutResult.blob, `cut_audio.${cutResult.ext}`)}>Download Cut Audio</Button>
+                        <span>Ready!</span>
+                        <Button color='green' size='small' onClick={() => saveAs(cutResult.blob, `cut.${cutResult.ext}`)}>Download</Button>
                     </div>
                 )}
             </motion.div>
@@ -703,45 +569,29 @@ const Converter = () => {
             {/* Audio Joiner Section */}
             <motion.div
                 className="converter-card"
-                initial={{ x: 50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.8 }}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
             >
-                <SemanticHeader as='h2' icon textAlign='center'>
-                    <Icon name='linkify' circular />
-                    <SemanticHeader.Content>Audio Joiner</SemanticHeader.Content>
-                </SemanticHeader>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '15px' }}>
-                    <div className="file-input-wrapper">
-                        <Button as="label" htmlFor="file1" icon labelPosition="left">
-                            <Icon name="music" />
-                            Select File 1
-                        </Button>
-                        <input type="file" id="file1" accept="audio/*" style={{ display: 'none' }} onChange={(e) => handleJoinFileChange(e, 0)} />
-                        <span style={{ marginLeft: '10px' }}>{joinFiles[0] ? joinFiles[0].name : "No file selected"}</span>
-                    </div>
-
-                    <div className="file-input-wrapper">
-                        <Button as="label" htmlFor="file2" icon labelPosition="left">
-                            <Icon name="music" />
-                            Select File 2
-                        </Button>
-                        <input type="file" id="file2" accept="audio/*" style={{ display: 'none' }} onChange={(e) => handleJoinFileChange(e, 1)} />
-                        <span style={{ marginLeft: '10px' }}>{joinFiles[1] ? joinFiles[1].name : "No file selected"}</span>
-                    </div>
+                <div className="icon-wrapper">
+                    <Icon name='linkify' size='huge' />
                 </div>
-
-                <div className="controls">
-                    <Button primary onClick={handleJoinAudio} loading={joiningAudio} disabled={!joinFiles[0] || !joinFiles[1] || !ffmpegLoaded}>
-                        Join Files
+                <SemanticHeader as='h2'>Audio Joiner</SemanticHeader>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', marginBottom: '20px' }}>
+                    <Button as='label' primary size='small' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.8 }}>
+                        <Icon name='plus' /> {joinFiles[0] ? joinFiles[0].name.slice(0, 15) : 'File 1'}
+                        <input type='file' hidden onChange={(e) => handleJoinFileChange(e, 0)} />
+                    </Button>
+                    <Button as='label' primary size='small' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.8 }}>
+                        <Icon name='plus' /> {joinFiles[1] ? joinFiles[1].name.slice(0, 15) : 'File 2'}
+                        <input type='file' hidden onChange={(e) => handleJoinFileChange(e, 1)} />
                     </Button>
                 </div>
-
+                <Button primary fluid onClick={handleJoinAudio} loading={joiningAudio} disabled={!joinFiles[0] || !joinFiles[1] || !ffmpegLoaded}>Join Files</Button>
                 {joinResult && (
                     <div className="result-area">
-                        <Icon name="check circle" color="green" size="large" />
-                        <Button color="green" onClick={() => saveAs(joinResult.blob, `joined_audio.${joinResult.ext}`)}>Download Joined Audio</Button>
+                        <span>Ready!</span>
+                        <Button color='green' size='small' onClick={() => saveAs(joinResult.blob, `joined.${joinResult.ext}`)}>Download</Button>
                     </div>
                 )}
             </motion.div>
@@ -749,41 +599,29 @@ const Converter = () => {
             {/* Video Extractor Section */}
             <motion.div
                 className="converter-card"
-                initial={{ x: 50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.9 }}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.7 }}
             >
-                <SemanticHeader as='h2' icon textAlign='center'>
-                    <Icon name='file video' circular />
-                    <SemanticHeader.Content>Video to Audio Extractor</SemanticHeader.Content>
-                </SemanticHeader>
-
+                <div className="icon-wrapper">
+                    <Icon name='file video' size='huge' />
+                </div>
+                <SemanticHeader as='h2'>Video to Audio</SemanticHeader>
                 <div {...getVideoRoot()} className={`dropzone ${isDragVideo ? 'active' : ''}`}>
                     <input {...getVideoInput()} />
-                    {videoFile ? <p>{videoFile.name}</p> : <p>Drag & Drop Video to Extract Audio</p>}
+                    {videoFile ? <p>{videoFile.name}</p> : <p>Drag & Drop Video</p>}
                 </div>
-
                 <div className="controls">
-                    <Dropdown
-                        selection
-                        options={audioOptions}
-                        value={extractFormat}
-                        onChange={(_, { value }) => setExtractFormat(value)}
-                        placeholder='Select Format'
-                    />
-                    <Button primary onClick={handleExtractAudio} loading={extracting} disabled={!videoFile || !ffmpegLoaded}>
-                        Extract Audio
-                    </Button>
+                    <Dropdown selection options={audioOptions} value={extractFormat} onChange={(_, { value }) => setExtractFormat(value)} />
+                    <Button primary onClick={handleExtractAudio} loading={extracting} disabled={!videoFile || !ffmpegLoaded}>Extract</Button>
                 </div>
                 {extractedAudio && (
                     <div className="result-area">
-                        <Icon name="check circle" color="green" size="large" />
-                        <Button color="green" onClick={() => saveAs(extractedAudio, `extracted_audio.${extractFormat}`)}>Download Audio</Button>
+                        <span>Ready!</span>
+                        <Button color='green' size='small' onClick={() => saveAs(extractedAudio, `extracted.${extractFormat}`)}>Download</Button>
                     </div>
                 )}
             </motion.div>
-
-
         </div>
     );
 };

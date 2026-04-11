@@ -29,7 +29,7 @@ Handle document and spreadsheet conversions with ease.
 - **Technology**: Powered by `ffmpeg.wasm`.
 - **Performance**: Multi-threaded encoding (requires COEP headers).
 
-### 4. � Image to Text (OCR)
+### 4. 📝 Image to Text (OCR)
 **New Feature!** Extract text from images instantly using Tesseract.js.
 - **Language Support**: English, Tamil, and Auto-Detection.
 - **Features**: Copy to clipboard, Download as `.txt`.
@@ -44,20 +44,19 @@ A suite of tools to manipulate audio files directly in the browser.
 - **Audio Joiner**: Merge multiple audio tracks into a single MP3.
 - **Video to Audio**: Extract MP3 audio from any video file. 
 
-### 6. �📺 YouTube to MP3 Converter
-**New Feature!** Convert and download audio directly from YouTube.
-- **Easy Storage**: API Key stored locally for convenience.
-- **Fast Conversion**: Powered by RapidAPI (YouTube MP3).
+### 6. 📺 YouTube to MP3 Converter
+**Enhanced Feature!** Convert and download audio directly from YouTube via the ReClip downloader.
+- **Seamless Integration**: Directly redirects to [downloader.fcruz.org](https://downloader.fcruz.org/) with your link.
+- **Fast & Reliable**: Leverages the high-performance ReClip conversion engine.
 - **Format**: High-quality MP3 output.
 
 ![YouTube Converter UI](public/screenshots/youtube-feature.png)
 
 ### 7. 🎨 Premium Design
-- **Glassmorphism**: Beautiful frosted glass cards and UI elements.
+- **Synchronization**: Local UI is 100% synchronized with the official [typesofconverter.netlify.app](https://typesofconverter.netlify.app/) deployment.
+- **Glassmorphism**: Beautiful frosted glass cards with `16px` blur and high-radius corners.
 - **Animations**: Smooth entrance animations (Framer Motion) and hover effects.
 - **Themes**: Fully functional **Dark/Light mode** toggle with vibrant animated gradients.
-  - *Dark Mode*: Deep Navy to Emerald Green Gradient.
-  - *Light Mode*: Sunset Orange to Teal Gradient.
 
 ![Light Mode Dashboard](public/screenshots/dashboard-light.png)
 
@@ -111,5 +110,5 @@ To enable the **Music Converter**, the server must serve files with specific sec
 Feel free to contact me about the problems. I will try to help as much as I can 😉
 
 [![Linkedin Badge](https://img.shields.io/badge/linkedin-%230077B5.svg?&style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/ajf013-francis-cruz/)
-[![Mail Badge](https://img.shields.io/badge/email-c14438?style=for-the-badge&logo=Gmail&logoColor=white&link=mailto:furkanozbek1995@gmail.com)](mailto:cruzmma2021@gmail.com)
+[![Mail Badge](https://img.shields.io/badge/email-c14438?style=for-the-badge&logo=Gmail&logoColor=white)](mailto:cruzmma2021@gmail.com)
 [![Github Badge](https://img.shields.io/badge/github-333?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ajf013)
