@@ -1,0 +1,17 @@
+{
+  "appId": "com.fcruz.converterapp",
+  "appName": "Converter App by F_Cruz",
+  "webDir": "dist",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 3000,
+      "launchAutoHide": true,
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false,
+      "splashFullScreen": true,
+      "splashImmersive": true,
+      "layoutName": "launch_screen"
+    }
+  }
+}

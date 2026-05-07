@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Converter App by F_Cruz</string>
+    <string name="title_activity_main">Converter App by F_Cruz</string>
+    <string name="package_name">com.fcruz.converterapp</string>
+    <string name="custom_url_scheme">com.fcruz.converterapp</string>
+</resources>
