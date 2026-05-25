@@ -1,7 +1,6 @@
 import * as XLSX from 'xlsx';
 import mammoth from 'mammoth';
 import { jsPDF } from 'jspdf';
-import { saveAs } from 'file-saver';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile } from '@ffmpeg/util';
 

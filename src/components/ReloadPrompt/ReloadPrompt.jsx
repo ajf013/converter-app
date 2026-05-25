@@ -35,11 +35,21 @@ function ReloadPrompt() {
                 <Icon name={offlineReady ? 'check circle' : 'cloud download'} />
                 <Message.Content>
                     <Message.Header>
-                        {offlineReady ? 'App Ready for Offline' : 'Update Available!'}
+                        {offlineReady ? 'App Ready for Offline' : 'New Update Available (v1.1.0)!'}
                     </Message.Header>
-                    {offlineReady
-                        ? 'App is ready to work offline.'
-                        : 'A new version of the app is available. Please update for the latest features.'}
+                    {offlineReady ? (
+                        'App is ready to work offline.'
+                    ) : (
+                        <div style={{ marginTop: '5px' }}>
+                            <p style={{ margin: '0 0 8px 0' }}>We've updated the app! Click below to apply these new features:</p>
+                            <ul style={{ paddingLeft: '20px', margin: '0 0 10px 0', fontSize: '0.85rem', lineHeight: '1.4' }}>
+                                <li>🗂️ <strong>Categorized Tabs:</strong> Clean tab bar to switch tool categories.</li>
+                                <li>🖼️ <strong>Image Previews:</strong> View thumbnails of selected images.</li>
+                                <li>📱 <strong>Native Share:</strong> Tap share to natively send files on mobile.</li>
+                                <li>🎨 <strong>Theme & UI Fixes:</strong> Better light/dark mode variables styling.</li>
+                            </ul>
+                        </div>
+                    )}
                     <div className="reload-prompt-buttons">
                         {needUpdate && (
                             <Button primary size="small" onClick={() => updateServiceWorker(true)}>
