@@ -8,21 +8,33 @@ import OcrConverter from './components/OcrConverter';
 import AudioCutter from './components/AudioCutter';
 import AudioJoiner from './components/AudioJoiner';
 import VideoExtractor from './components/VideoExtractor';
+import PdfMerger from './components/PdfMerger';
+import PdfSplitter from './components/PdfSplitter';
+import PdfSecurity from './components/PdfSecurity';
+import QrSuite from './components/QrSuite';
+import PaletteExtractor from './components/PaletteExtractor';
+import ColorConverter from './components/ColorConverter';
+import Base64Converter from './components/Base64Converter';
+import HistoryLog from './components/HistoryLog';
+import UpdateNotification from './components/UpdateNotification';
 import './Converter.css';
 
 const categories = [
     { id: 'all', label: 'All Tools', icon: 'grid layout' },
     { id: 'image', label: 'Image Tools', icon: 'image' },
     { id: 'audio', label: 'Audio & Video', icon: 'music' },
+    { id: 'pdf', label: 'PDF Utilities', icon: 'file pdf' },
     { id: 'document', label: 'Documents & OCR', icon: 'file text' },
     { id: 'youtube', label: 'YouTube Downloader', icon: 'youtube' },
+    { id: 'utils', label: 'Design & Utilities', icon: 'settings' },
 ];
 
 const Converter = () => {
     const [activeCategory, setActiveCategory] = useState('all');
+    const [historyOpen, setHistoryOpen] = useState(false);
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', position: 'relative' }}>
             {/* Category Navigation Tabs */}
             <div className="category-tabs">
                 {categories.map(cat => (
@@ -48,7 +60,53 @@ const Converter = () => {
                 {(activeCategory === 'all' || activeCategory === 'audio') && <AudioCutter />}
                 {(activeCategory === 'all' || activeCategory === 'audio') && <AudioJoiner />}
                 {(activeCategory === 'all' || activeCategory === 'audio') && <VideoExtractor />}
+
+                {/* PDF Tools */}
+                {(activeCategory === 'all' || activeCategory === 'pdf') && <PdfMerger />}
+                {(activeCategory === 'all' || activeCategory === 'pdf') && <PdfSplitter />}
+                {(activeCategory === 'all' || activeCategory === 'pdf') && <PdfSecurity />}
+
+                {/* Design & Tech Utilities */}
+                {(activeCategory === 'all' || activeCategory === 'utils') && <PaletteExtractor />}
+                {(activeCategory === 'all' || activeCategory === 'utils') && <ColorConverter />}
+                {(activeCategory === 'all' || activeCategory === 'utils') && <QrSuite />}
+                {(activeCategory === 'all' || activeCategory === 'utils') && <Base64Converter />}
             </div>
+
+            {/* Floating Settings/History Toggle Button */}
+            <button
+                className="history-toggle-btn"
+                onClick={() => setHistoryOpen(true)}
+                style={{
+                    position: 'fixed',
+                    bottom: '25px',
+                    right: '25px',
+                    background: 'linear-gradient(135deg, #00dbde 0%, #fc00ff 100%)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '56px',
+                    height: '56px',
+                    boxShadow: '0 8px 32px rgba(0, 219, 222, 0.4)',
+                    cursor: 'pointer',
+                    zIndex: 999,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.15)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1.0)'; }}
+                aria-label="Open settings and history logs"
+            >
+                <Icon name="setting" size="large" style={{ margin: 0 }} />
+            </button>
+
+            {/* Slide-out Settings & History Drawer */}
+            <HistoryLog isOpen={historyOpen} onClose={() => setHistoryOpen(false)} />
+
+            {/* Launch update notification */}
+            <UpdateNotification />
         </div>
     );
 };

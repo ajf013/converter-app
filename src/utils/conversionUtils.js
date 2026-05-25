@@ -3,19 +3,31 @@ import mammoth from 'mammoth';
 import { jsPDF } from 'jspdf';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile } from '@ffmpeg/util';
+import { PDFDocument } from 'pdf-lib';
+import { encryptPDF } from '@pdfsmaller/pdf-encrypt-lite';
+import { decryptPDF } from '@pdfsmaller/pdf-decrypt';
+import JSZip from 'jszip';
 
 // --- Image Conversion ---
-export const convertImage = (file, targetFormat) => {
+export const convertImage = (file, targetFormat, options = {}) => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (event) => {
             const img = new Image();
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
+                
+                let targetWidth = img.width;
+                let targetHeight = img.height;
+                
+                if (options.width) targetWidth = Number(options.width);
+                if (options.height) targetHeight = Number(options.height);
+
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
+                
                 const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
+                ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
 
                 // Determine mime type
                 let mimeType = 'image/png';
@@ -24,13 +36,15 @@ export const convertImage = (file, targetFormat) => {
                 if (targetFormat === 'bmp') mimeType = 'image/bmp';
                 if (targetFormat === 'gif') mimeType = 'image/gif';
 
+                const quality = options.quality !== undefined ? Number(options.quality) : 0.92;
+
                 canvas.toBlob((blob) => {
                     if (blob) {
                         resolve(blob);
                     } else {
                         reject(new Error('Conversion failed'));
                     }
-                }, mimeType);
+                }, mimeType, quality);
             };
             img.onerror = reject;
             img.src = event.target.result;
@@ -217,3 +231,101 @@ export const joinAudio = async (files, targetFormat) => {
 
 // --- YouTube Conversion ---
 // RapidAPI and Internal FFmpeg conversion removed. External redirect used in UI.
+
+// --- ZIP Archiver ---
+export const createZipArchive = async (filesArray) => {
+    const zip = new JSZip();
+    filesArray.forEach((file) => {
+        zip.file(file.name, file.blob);
+    });
+    return await zip.generateAsync({ type: 'blob' });
+};
+
+// --- PDF Merging ---
+export const mergePDFs = async (files) => {
+    const mergedPdf = await PDFDocument.create();
+    for (const file of files) {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfDoc = await PDFDocument.load(arrayBuffer);
+        const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
+        copiedPages.forEach((page) => mergedPdf.addPage(page));
+    }
+    const pdfBytes = await mergedPdf.save();
+    return new Blob([pdfBytes], { type: 'application/pdf' });
+};
+
+// --- PDF Splitting ---
+export const parsePageRanges = (rangeStr, totalPages) => {
+    const pages = new Set();
+    const parts = rangeStr.split(',');
+    for (let part of parts) {
+        part = part.trim();
+        if (!part) continue;
+        if (part.includes('-')) {
+            const [startStr, endStr] = part.split('-');
+            const start = parseInt(startStr.trim(), 10);
+            const end = parseInt(endStr.trim(), 10);
+            if (!isNaN(start) && !isNaN(end)) {
+                const low = Math.min(start, end);
+                const high = Math.max(start, end);
+                for (let i = low; i <= high; i++) {
+                    if (i >= 1 && i <= totalPages) {
+                        pages.add(i - 1); // 0-based
+                    }
+                }
+            }
+        } else {
+            const pageNum = parseInt(part, 10);
+            if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
+                pages.add(pageNum - 1); // 0-based
+            }
+        }
+    }
+    return Array.from(pages).sort((a, b) => a - b);
+};
+
+export const splitPDF = async (file, rangeStr) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const srcDoc = await PDFDocument.load(arrayBuffer);
+    const totalPages = srcDoc.getPageCount();
+
+    if (rangeStr.trim().toLowerCase() === 'all' || !rangeStr.trim()) {
+        // Split all pages into individual files
+        const splitFiles = [];
+        for (let i = 0; i < totalPages; i++) {
+            const newDoc = await PDFDocument.create();
+            const [copiedPage] = await newDoc.copyPages(srcDoc, [i]);
+            newDoc.addPage(copiedPage);
+            const pdfBytes = await newDoc.save();
+            splitFiles.push({
+                name: `${file.name.replace(/\.pdf$/i, '')}_page_${i + 1}.pdf`,
+                blob: new Blob([pdfBytes], { type: 'application/pdf' })
+            });
+        }
+        return splitFiles; // returns array of {name, blob}
+    } else {
+        // Extract specific pages into a single PDF
+        const indices = parsePageRanges(rangeStr, totalPages);
+        if (indices.length === 0) {
+            throw new Error('No valid pages found in range.');
+        }
+        const newDoc = await PDFDocument.create();
+        const copiedPages = await newDoc.copyPages(srcDoc, indices);
+        copiedPages.forEach((page) => newDoc.addPage(page));
+        const pdfBytes = await newDoc.save();
+        return new Blob([pdfBytes], { type: 'application/pdf' }); // returns single blob
+    }
+};
+
+// --- PDF Security ---
+export const encryptPDFFile = async (file, password) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const encryptedBytes = encryptPDF(new Uint8Array(arrayBuffer), password);
+    return new Blob([encryptedBytes], { type: 'application/pdf' });
+};
+
+export const decryptPDFFile = async (file, password) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const decryptedBytes = decryptPDF(new Uint8Array(arrayBuffer), password);
+    return new Blob([decryptedBytes], { type: 'application/pdf' });
+};

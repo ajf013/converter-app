@@ -13,7 +13,8 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
     padding: 30px;
-    width: 450px;
+    width: 100%;
+    max-width: 500px;
     text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
@@ -206,4 +207,53 @@
         padding: 8px 16px;
         font-size: 0.9rem;
     }
+}
+
+/* Floating settings button keyframes and pulse effect */
+.history-toggle-btn {
+    animation: floatPulse 3s ease-in-out infinite;
+}
+
+.history-toggle-btn:hover {
+    box-shadow: 0 10px 40px rgba(252, 0, 255, 0.6) !important;
+}
+
+@keyframes floatPulse {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+/* Modern inputs & range styling */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-radius: 5px;
+    height: 6px;
+    outline: none;
+    transition: background 0.3s ease;
+    margin: 10px 0;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #00dbde;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: transform 0.1s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.25);
 }

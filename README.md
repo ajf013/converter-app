@@ -12,13 +12,27 @@ A premium, all-in-one file conversion Progressive Web App (PWA) built with React
 | :--- | :--- | :--- | :--- |
 | **React** | ![React](https://img.shields.io/badge/react-%2320232a.svg?style=flat-square&logo=react&logoColor=%2361DAFB) | `v18.2.0` | Frontend UI Component rendering |
 | **Vite** | ![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=flat-square&logo=vite&logoColor=white) | `v7.2.4` | High-speed frontend build engine |
-| **Capacitor** | ![Capacitor](https://img.shields.io/badge/capacitor-%23119EFF.svg?style=flat-square&logo=capacitor&logoColor=white) | `v8.3.1` | Native Android & iOS wrapper layer |
+| **Capacitor** | ![Capacizer](https://img.shields.io/badge/capacitor-%23119EFF.svg?style=flat-square&logo=capacitor&logoColor=white) | `v8.3.1` | Native Android & iOS wrapper layer |
 | **FFmpeg.wasm** | ![WebAssembly](https://img.shields.io/badge/WebAssembly-654FF0?style=flat-square&logo=webassembly&logoColor=white) | `v0.12.15` | Client-side audio processing |
 | **Tesseract.js** | ![OCR](https://img.shields.io/badge/OCR-Tesseract.js-green?style=flat-square) | `v7.0.0` | Client-side Image-to-Text OCR |
 | **SheetJS** | ![Excel](https://img.shields.io/badge/xlsx-%23107C41.svg?style=flat-square&logo=microsoftexcel&logoColor=white) | `v0.18.5` | Spreadsheet parser and generator |
+| **pdf-lib** | ![PDF](https://img.shields.io/badge/pdf--lib-red?style=flat-square) | `v1.17.1` | Client-side PDF reader/editor and merger |
 | **jsPDF** | ![PDF](https://img.shields.io/badge/jsPDF-%23F40F02.svg?style=flat-square&logo=adobeacrobatreader&logoColor=white) | `v3.0.4` | Document-to-PDF generator |
 | **Framer Motion** | ![Framer Motion](https://img.shields.io/badge/Framer--Motion-black?style=flat-square&logo=framer&logoColor=white) | `v12.23.26` | Animated components and transitions |
 | **Semantic UI** | ![Semantic UI](https://img.shields.io/badge/Semantic--UI-Semantic--UI--React-blue?style=flat-square) | `v2.1.5` | Form layout and utility UI controls |
+| **JSZip** | ![ZIP](https://img.shields.io/badge/JSZip-orange?style=flat-square) | `v3.10.1` | ZIP compression and archiving library |
+| **QRCode / jsQR** | ![QR](https://img.shields.io/badge/QR--Code-blueviolet?style=flat-square) | `v1.5.4 / v1.4.0` | Client-side QR generator and scanner |
+
+---
+
+## 🚀 What's New in Version 1.2.0 ✨
+
+* 🗂️ **PDF Utilities Tab & Suite:** Added local tools to merge multiple PDF files, split PDF pages, or extract specific page ranges (packaged as a ZIP archive), and password-encrypt or decrypt PDFs locally.
+* ⚡ **Batch Image Converter & Resizer:** Drop multiple images at once, customize percentage or custom pixel dimensions (with aspect-ratio locking), compression quality slider, and batch download all as a ZIP file.
+* 🎨 **Design & Color Utilities Tab:** Extract dominant 6-color swatches from images using canvas clustering, and convert color codes instantly in real-time (HEX, RGB, HSL, CMYK).
+* 🔗 **QR Code Suite:** Generate styled QR codes (Wi-Fi, contact vCard, URL/Text) with custom colors, and scan codes via webcam feed or image upload.
+* 🔏 **Base64 Encoder/Decoder:** Convert files of any type into Base64 URI strings, or decode strings back to downloadable file binary format.
+* 🕒 **Conversion History & App Update System:** Access local transaction logs, dynamic chime sound effects, and launch version-check modal notifications with force hard refresh controls.
 
 ---
 
@@ -48,7 +62,7 @@ graph TD
     end
 
     subgraph Converters ["Converter Sub-Components"]
-        ImgC[Image Converter]
+        ImgC[Image Converter - Batch & Resize]
         DocC[Document Converter]
         AudC[Audio Converter]
         YtC[Youtube Converter]
@@ -56,6 +70,13 @@ graph TD
         CutC[Audio Cutter]
         JoinC[Audio Joiner]
         VidC[Video Extractor]
+        PdfM[PDF Merger]
+        PdfS[PDF Splitter]
+        PdfSec[PDF Security]
+        QrSuite[QR Code Suite]
+        PalExt[Palette Extractor]
+        ColConv[Color Converter]
+        B64Conv[Base64 Converter]
     end
 
     subgraph Engines ["Local Execution Engines"]
@@ -130,9 +151,18 @@ converter-app/
 │   │   │   │   ├── AudioConverter.jsx
 │   │   │   │   ├── AudioCutter.jsx
 │   │   │   │   ├── AudioJoiner.jsx
+│   │   │   │   ├── Base64Converter.jsx
+│   │   │   │   ├── ColorConverter.jsx
 │   │   │   │   ├── DocConverter.jsx
+│   │   │   │   ├── HistoryLog.jsx
 │   │   │   │   ├── ImageConverter.jsx
 │   │   │   │   ├── OcrConverter.jsx
+│   │   │   │   ├── PaletteExtractor.jsx
+│   │   │   │   ├── PdfMerger.jsx
+│   │   │   │   ├── PdfSecurity.jsx
+│   │   │   │   ├── PdfSplitter.jsx
+│   │   │   │   ├── QrSuite.jsx
+│   │   │   │   ├── UpdateNotification.jsx
 │   │   │   │   ├── VideoExtractor.jsx
 │   │   │   │   └── YoutubeConverter.jsx
 │   │   │   ├── Converter.css  # Tab and Card Styling
@@ -143,6 +173,7 @@ converter-app/
 │   ├── contexts/              # Light/Dark Theme Contexts
 │   ├── utils/
 │   │   ├── conversionUtils.js # SheetJS, jsPDF, FFmpeg modules
+│   │   ├── historyUtils.js    # Local logs and dynamic Audio Context chimes
 │   │   └── shareUtils.js      # Web Share API wrapper
 │   ├── App.css                # Global backgrounds and scrollbars
 │   ├── App.jsx                # Main Application Shell
@@ -150,7 +181,7 @@ converter-app/
 │   └── main.jsx               # Entry-point initialization
 ├── capacitor.config.json      # Native Mobile Wrapper Settings
 ├── eslint.config.js           # Lint Rules Config
-├── package.json               # Manifest (v1.1.0) & Scripts
+├── package.json               # Manifest (v1.2.0) & Scripts
 ├── README.md                  # Project Documentation
 └── vite.config.js             # DevServer headers and PWA plugin
 ```
@@ -160,7 +191,7 @@ converter-app/
 ## 🔄 Mobile Updates & Auto-Update Mechanism
 
 ### 1. PWA Browser Updates
-When static assets change on production, the service worker detects the updated hash. `ReloadPrompt` notifies users with a custom alert listing the **v1.1.0 updates**, inviting them to tap **Update Now** to load the new code instantly.
+When static assets change on production, the service worker detects the updated hash. `ReloadPrompt` notifies users with a custom alert listing the **v1.2.0 updates**, inviting them to tap **Update Now** to load the new code instantly, or **Hard Refresh** to force-clear the cache on any system.
 
 ### 2. Capacitor (Android/iOS) Native Updates
 To ensure native mobile users receive updates seamlessly without manually updating through the Play Store/App Store, we recommend integrating:
