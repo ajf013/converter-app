@@ -2,8 +2,7 @@
 
 A premium, all-in-one file conversion Progressive Web App (PWA) built with React, Vite, and Capacitor. Convert images, documents, and audio files entirely client-side with a beautiful glassmorphism UI, tabbed layouts, file previews, and native sharing.
 
-## 🌐 Live Demo
-🔗 **Live Site:** [https://typesofconverter.netlify.app/](https://typesofconverter.netlify.app/)
+### 🌐 [Live Site](https://converter.fcruz.org/)
 
 ---
 
@@ -194,8 +193,15 @@ To ensure native mobile users receive updates seamlessly without manually updati
 
 ---
 
-## 👨‍💻 Author
-**Francis Cruz**
-- [GitHub](https://github.com/ajf013)
-- [LinkedIn](https://www.linkedin.com/in/ajf013-francis-cruz/)
-- [Gmail](mailto:jeni13franc@gmail.com)
+## Author
+
+### 👤 Francis Ponnu Cruz I
+> **Azure Cloud & DevOps Engineer | Microsoft Certified Trainer (MCT)**
+
+#### 🌐 Connect with Me:
+[![GitHub](https://img.shields.io/badge/GitHub-ajf013-181717?style=flat-square&logo=github)](https://github.com/ajf013)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Francis_Cruz-0A66C2?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/ajf013-francis-cruz/)
+[![Twitter/X](https://img.shields.io/badge/X-@Itsme__Ajf013-000000?style=flat-square&logo=x)](https://x.com/Itsme_Ajf013)
+[![Website](https://img.shields.io/badge/Website-fcruz.org-2D3748?style=flat-square&logo=googlechrome&logoColor=white)](https://fcruz.org)
+[![Linktree](https://img.shields.io/badge/Linktree-AJF013-39E09B?style=flat-square&logo=linktree&logoColor=white)](https://linktr.ee/AJF013)
+
