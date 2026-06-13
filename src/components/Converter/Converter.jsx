@@ -11,6 +11,22 @@ import VideoExtractor from './components/VideoExtractor';
 import PdfMerger from './components/PdfMerger';
 import PdfSplitter from './components/PdfSplitter';
 import PdfSecurity from './components/PdfSecurity';
+import PdfRotate from './components/PdfRotate';
+import PdfWatermark from './components/PdfWatermark';
+import ImagesToPdf from './components/ImagesToPdf';
+import PdfPageNumbers from './components/PdfPageNumbers';
+import PdfOrganizer from './components/PdfOrganizer';
+import PdfToJpg from './components/PdfToJpg';
+import PdfSign from './components/PdfSign';
+import HtmlToPdf from './components/HtmlToPdf';
+import PdfCompress from './components/PdfCompress';
+import WordToPdf from './components/WordToPdf';
+import PptxToPdf from './components/PptxToPdf';
+import ExcelToPdf from './components/ExcelToPdf';
+import PdfToWord from './components/PdfToWord';
+import PdfToExcel from './components/PdfToExcel';
+import PdfToPptx from './components/PdfToPptx';
+import PdfToPdfA from './components/PdfToPdfA';
 import QrSuite from './components/QrSuite';
 import PaletteExtractor from './components/PaletteExtractor';
 import ColorConverter from './components/ColorConverter';
@@ -24,6 +40,7 @@ const categories = [
     { id: 'image', label: 'Image Tools', icon: 'image' },
     { id: 'audio', label: 'Audio & Video', icon: 'music' },
     { id: 'pdf', label: 'PDF Utilities', icon: 'file pdf' },
+    { id: 'convert-pdf', label: 'Convert PDF', icon: 'exchange' },
     { id: 'document', label: 'Documents & OCR', icon: 'file text' },
     { id: 'youtube', label: 'YouTube Downloader', icon: 'youtube' },
     { id: 'utils', label: 'Design & Utilities', icon: 'settings' },
@@ -65,6 +82,24 @@ const Converter = () => {
                 {(activeCategory === 'all' || activeCategory === 'pdf') && <PdfMerger />}
                 {(activeCategory === 'all' || activeCategory === 'pdf') && <PdfSplitter />}
                 {(activeCategory === 'all' || activeCategory === 'pdf') && <PdfSecurity />}
+                {(activeCategory === 'all' || activeCategory === 'pdf') && <PdfRotate />}
+                {(activeCategory === 'all' || activeCategory === 'pdf') && <PdfWatermark />}
+                {(activeCategory === 'all' || activeCategory === 'image' || activeCategory === 'pdf' || activeCategory === 'convert-pdf') && <ImagesToPdf />}
+                {(activeCategory === 'all' || activeCategory === 'pdf') && <PdfPageNumbers />}
+                {(activeCategory === 'all' || activeCategory === 'pdf') && <PdfOrganizer />}
+                {(activeCategory === 'all' || activeCategory === 'pdf') && <PdfCompress />}
+                {(activeCategory === 'all' || activeCategory === 'image' || activeCategory === 'pdf' || activeCategory === 'convert-pdf') && <PdfToJpg />}
+                {(activeCategory === 'all' || activeCategory === 'pdf') && <PdfSign />}
+                {(activeCategory === 'all' || activeCategory === 'document' || activeCategory === 'pdf' || activeCategory === 'convert-pdf') && <HtmlToPdf />}
+
+                {/* Convert PDF Tab Office Tools */}
+                {(activeCategory === 'all' || activeCategory === 'convert-pdf') && <WordToPdf />}
+                {(activeCategory === 'all' || activeCategory === 'convert-pdf') && <PptxToPdf />}
+                {(activeCategory === 'all' || activeCategory === 'convert-pdf') && <ExcelToPdf />}
+                {(activeCategory === 'all' || activeCategory === 'convert-pdf') && <PdfToWord />}
+                {(activeCategory === 'all' || activeCategory === 'convert-pdf') && <PdfToExcel />}
+                {(activeCategory === 'all' || activeCategory === 'convert-pdf') && <PdfToPptx />}
+                {(activeCategory === 'all' || activeCategory === 'convert-pdf') && <PdfToPdfA />}
 
                 {/* Design & Tech Utilities */}
                 {(activeCategory === 'all' || activeCategory === 'utils') && <PaletteExtractor />}

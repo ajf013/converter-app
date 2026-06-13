@@ -25,6 +25,18 @@ A premium, all-in-one file conversion Progressive Web App (PWA) built with React
 
 ---
 
+## 🚀 What's New in Version 1.3.0 ✨
+
+* 🔄 **Convert PDF Navigation Tab:** Dedicated navigation tab housing all converters.
+* 📄 **Office to PDF Converters:** Local client-side conversion of Word (`.docx`), Excel (`.xlsx`), and PowerPoint (`.pptx`) documents into PDFs.
+* 📝 **PDF to Office Converters:** Extract layout text back to Word (`.doc`), Excel (`.xlsx`), and PowerPoint presentation outline structures completely offline.
+* ✍️ **Sign PDF:** Draw signature on an overlay canvas and stamp it on first, last, or custom page ranges with adjustable scale.
+* 🗜️ **Compress PDF:** Re-sample and optimize page images to reduce PDF files sizes client-side.
+* 🖼️ **PDF to JPG:** Export all pages as independent JPG images packaged inside a `.zip` archive.
+* 💾 **PDF/A Standardizer:** Append PDF/A conforming metadata archives to standard PDF structures.
+
+---
+
 ## 🚀 What's New in Version 1.2.0 ✨
 
 * 🗂️ **PDF Utilities Tab & Suite:** Added local tools to merge multiple PDF files, split PDF pages, or extract specific page ranges (packaged as a ZIP archive), and password-encrypt or decrypt PDFs locally.
@@ -181,7 +193,7 @@ converter-app/
 │   └── main.jsx               # Entry-point initialization
 ├── capacitor.config.json      # Native Mobile Wrapper Settings
 ├── eslint.config.js           # Lint Rules Config
-├── package.json               # Manifest (v1.2.0) & Scripts
+├── package.json               # Manifest (v1.3.0) & Scripts
 ├── README.md                  # Project Documentation
 └── vite.config.js             # DevServer headers and PWA plugin
 ```

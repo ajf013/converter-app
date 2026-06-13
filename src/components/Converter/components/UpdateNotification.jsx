@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Icon, List } from 'semantic-ui-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const CURRENT_VERSION = '1.2.0';
+const CURRENT_VERSION = '1.3.0';
 
 const UpdateNotification = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -86,67 +86,57 @@ const UpdateNotification = () => {
                     <Modal.Content style={{ background: 'transparent', color: 'white', padding: '20px' }}>
                         <Modal.Description>
                             <p style={{ fontSize: '1.1rem', marginBottom: '18px', color: '#00dbde', fontWeight: 'bold' }}>
-                                We've packed this release with powerful new offline utility tools and layout updates!
+                                We've added a brand new PDF conversion suite and advanced offline tools!
                             </p>
                             <h4 style={{ color: 'white', marginBottom: '12px' }}>What's New:</h4>
                             
                             <List relaxed style={{ color: 'white' }}>
                                 <List.Item style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
-                                    <Icon name="file pdf" color="red" size="large" />
+                                    <Icon name="exchange" color="blue" size="large" />
                                     <div>
-                                        <strong>PDF Utilities Tab</strong>
+                                        <strong>Convert PDF Tab</strong>
                                         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: '2px 0 0 0' }}>
-                                            Merge multiple PDFs, split PDF pages, and secure/unlock documents using client-side password protection.
+                                            Dedicated layout tab housing Microsoft Word (.docx), Excel (.xlsx), and PowerPoint (.pptx) converters.
                                         </p>
                                     </div>
                                 </List.Item>
 
                                 <List.Item style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
-                                    <Icon name="images" color="blue" size="large" />
+                                    <Icon name="file pdf outline" color="red" size="large" />
                                     <div>
-                                        <strong>Batch Image Converter & Controls</strong>
+                                        <strong>PDF to Office / Image Conversions</strong>
                                         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: '2px 0 0 0' }}>
-                                            Convert multiple images at once, customize resizing (by percentage scale or pixel aspect ratio lock), compress quality, and download all as a single ZIP.
+                                            Extract layout paragraphs, sheets, and outline formats back into Word, Excel, PowerPoint, or JPG pages (.zip archive).
                                         </p>
                                     </div>
                                 </List.Item>
 
                                 <List.Item style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
-                                    <Icon name="eye dropper" color="teal" size="large" />
+                                    <Icon name="pencil" color="teal" size="large" />
                                     <div>
-                                        <strong>Color & Design Utilities</strong>
+                                        <strong>Sign PDF</strong>
                                         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: '2px 0 0 0' }}>
-                                            Extract dominant color palettes from images, and convert color codes instantly in real-time (HEX, RGB, HSL, CMYK).
+                                            Draw your digital signature directly on canvas and stamp it on any page range with custom scaling.
                                         </p>
                                     </div>
                                 </List.Item>
 
                                 <List.Item style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
-                                    <Icon name="qrcode" color="purple" size="large" />
+                                    <Icon name="compress" color="green" size="large" />
                                     <div>
-                                        <strong>QR Code Suite</strong>
+                                        <strong>Compress PDF</strong>
                                         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: '2px 0 0 0' }}>
-                                            Generate styled QR codes for links, Wi-Fi networks, and contact vCards. Scan QR codes via user-granted webcam or file uploads.
+                                            Optimize and downscale images in your PDF stream to shrink file size client-side.
                                         </p>
                                     </div>
                                 </List.Item>
 
                                 <List.Item style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
-                                    <Icon name="key" color="orange" size="large" />
+                                    <Icon name="archive" color="purple" size="large" />
                                     <div>
-                                        <strong>Base64 File Converter</strong>
+                                        <strong>PDF to PDF/A</strong>
                                         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: '2px 0 0 0' }}>
-                                            Convert files to copyable Base64 strings and decode strings back to downloadable file binary formats.
-                                        </p>
-                                    </div>
-                                </List.Item>
-
-                                <List.Item style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
-                                    <Icon name="history" color="green" size="large" />
-                                    <div>
-                                        <strong>Conversion History Log & Settings</strong>
-                                        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: '2px 0 0 0' }}>
-                                            Access your local transaction logs in browser storage, customize alert completion sound chimes, and toggle auto-download preferences.
+                                            Archive your document with standard ISO-conforming PDF/A metadata headers.
                                         </p>
                                     </div>
                                 </List.Item>

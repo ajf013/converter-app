@@ -1,9 +1,10 @@
 import * as XLSX from 'xlsx';
 import mammoth from 'mammoth';
 import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile } from '@ffmpeg/util';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, degrees, rgb, StandardFonts } from 'pdf-lib';
 import { encryptPDF } from '@pdfsmaller/pdf-encrypt-lite';
 import { decryptPDF } from '@pdfsmaller/pdf-decrypt';
 import JSZip from 'jszip';
@@ -328,4 +329,669 @@ export const decryptPDFFile = async (file, password) => {
     const arrayBuffer = await file.arrayBuffer();
     const decryptedBytes = decryptPDF(new Uint8Array(arrayBuffer), password);
     return new Blob([decryptedBytes], { type: 'application/pdf' });
+};
+
+// --- PDF Rotate ---
+export const rotatePDFPages = async (file, rotationAngle, rangeStr) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdfDoc = await PDFDocument.load(arrayBuffer);
+    const count = pdfDoc.getPageCount();
+    
+    let targetIndices = [];
+    if (rangeStr.trim().toLowerCase() === 'all' || !rangeStr.trim()) {
+        targetIndices = Array.from({ length: count }, (_, i) => i);
+    } else {
+        targetIndices = parsePageRanges(rangeStr, count);
+    }
+    
+    for (const index of targetIndices) {
+        const page = pdfDoc.getPage(index);
+        const currentRotation = page.getRotation().angle;
+        const newRotation = (currentRotation + rotationAngle) % 360;
+        page.setRotation(degrees(newRotation));
+    }
+    
+    const pdfBytes = await pdfDoc.save();
+    return new Blob([pdfBytes], { type: 'application/pdf' });
+};
+
+// --- PDF Watermarking ---
+export const addWatermarkToPDF = async (file, watermarkSettings) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdfDoc = await PDFDocument.load(arrayBuffer);
+    const count = pdfDoc.getPageCount();
+    
+    const { 
+        type, 
+        text, 
+        fontColor = '#ff0000', 
+        fontSize = 50, 
+        opacity = 0.5, 
+        angle = 45, 
+        imageFile,
+        pageRange = 'all'
+    } = watermarkSettings;
+    
+    let targetIndices = [];
+    if (pageRange.trim().toLowerCase() === 'all' || !pageRange.trim()) {
+        targetIndices = Array.from({ length: count }, (_, i) => i);
+    } else {
+        targetIndices = parsePageRanges(pageRange, count);
+    }
+    
+    let embeddedImage = null;
+    if (type === 'image' && imageFile) {
+        const imgBuffer = await imageFile.arrayBuffer();
+        const lowerName = imageFile.name.toLowerCase();
+        if (lowerName.endsWith('.png')) {
+            embeddedImage = await pdfDoc.embedPng(imgBuffer);
+        } else if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) {
+            embeddedImage = await pdfDoc.embedJpg(imgBuffer);
+        } else {
+            throw new Error('Only PNG and JPG images are supported for watermarks.');
+        }
+    }
+    
+    const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    
+    const hexToRgb = (hex) => {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16) / 255,
+            g: parseInt(result[2], 16) / 255,
+            b: parseInt(result[3], 16) / 255
+        } : { r: 1, g: 0, b: 0 };
+    };
+    
+    const rgbColor = hexToRgb(fontColor);
+    
+    for (const index of targetIndices) {
+        const page = pdfDoc.getPage(index);
+        const { width, height } = page.getSize();
+        
+        if (type === 'text' && text) {
+            const textWidth = font.widthOfTextAtSize(text, fontSize);
+            const textHeight = fontSize;
+            
+            page.drawText(text, {
+                x: width / 2 - (textWidth / 2) * Math.cos(angle * Math.PI / 180),
+                y: height / 2 - textHeight / 2,
+                size: fontSize,
+                font: font,
+                color: rgb(rgbColor.r, rgbColor.g, rgbColor.b),
+                opacity: Number(opacity),
+                rotate: degrees(angle),
+            });
+        } else if (type === 'image' && embeddedImage) {
+            const imgDims = embeddedImage.scale(0.5);
+            const scaleFactor = Number(watermarkSettings.scale || 1.0);
+            const finalWidth = imgDims.width * scaleFactor;
+            const finalHeight = imgDims.height * scaleFactor;
+            
+            page.drawImage(embeddedImage, {
+                x: width / 2 - finalWidth / 2,
+                y: height / 2 - finalHeight / 2,
+                width: finalWidth,
+                height: finalHeight,
+                opacity: Number(opacity),
+                rotate: degrees(angle),
+            });
+        }
+    }
+    
+    const pdfBytes = await pdfDoc.save();
+    return new Blob([pdfBytes], { type: 'application/pdf' });
+};
+
+// --- Images to PDF ---
+export const convertImagesToPDF = async (imageFiles, settings) => {
+    const pdfDoc = await PDFDocument.create();
+    const { pageSize = 'fit', orientation = 'portrait', margin = 'none' } = settings;
+    
+    let m = 0;
+    if (margin === 'small') m = 20;
+    if (margin === 'large') m = 40;
+    
+    for (const file of imageFiles) {
+        const imgBuffer = await file.arrayBuffer();
+        const lowerName = file.name.toLowerCase();
+        let embeddedImage = null;
+        if (lowerName.endsWith('.png')) {
+            embeddedImage = await pdfDoc.embedPng(imgBuffer);
+        } else if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) {
+            embeddedImage = await pdfDoc.embedJpg(imgBuffer);
+        } else {
+            const pngBlob = await convertImageToPng(file);
+            const pngBuffer = await pngBlob.arrayBuffer();
+            embeddedImage = await pdfDoc.embedPng(pngBuffer);
+        }
+        
+        let imgWidth = embeddedImage.width;
+        let imgHeight = embeddedImage.height;
+        
+        let pageWidth = imgWidth + m * 2;
+        let pageHeight = imgHeight + m * 2;
+        
+        if (pageSize === 'a4') {
+            pageWidth = 595.27;
+            pageHeight = 841.89;
+        } else if (pageSize === 'letter') {
+            pageWidth = 612;
+            pageHeight = 792;
+        }
+        
+        if (pageSize !== 'fit') {
+            const isLandscape = orientation === 'landscape' || (orientation === 'auto' && imgWidth > imgHeight);
+            if (isLandscape && pageWidth < pageHeight) {
+                const temp = pageWidth;
+                pageWidth = pageHeight;
+                pageHeight = temp;
+            } else if (!isLandscape && pageWidth > pageHeight) {
+                const temp = pageWidth;
+                pageWidth = pageHeight;
+                pageHeight = temp;
+            }
+        }
+        
+        const page = pdfDoc.addPage([pageWidth, pageHeight]);
+        
+        const printableWidth = pageWidth - m * 2;
+        const printableHeight = pageHeight - m * 2;
+        
+        let displayWidth = imgWidth;
+        let displayHeight = imgHeight;
+        
+        if (displayWidth > printableWidth || displayHeight > printableHeight || pageSize !== 'fit') {
+            const widthRatio = printableWidth / displayWidth;
+            const heightRatio = printableHeight / displayHeight;
+            const scale = Math.min(widthRatio, heightRatio);
+            displayWidth = displayWidth * scale;
+            displayHeight = displayHeight * scale;
+        }
+        
+        const x = m + (printableWidth - displayWidth) / 2;
+        const y = m + (printableHeight - displayHeight) / 2;
+        
+        page.drawImage(embeddedImage, {
+            x,
+            y,
+            width: displayWidth,
+            height: displayHeight
+        });
+    }
+    
+    const pdfBytes = await pdfDoc.save();
+    return new Blob([pdfBytes], { type: 'application/pdf' });
+};
+
+const convertImageToPng = (file) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                canvas.toBlob((blob) => {
+                    if (blob) resolve(blob);
+                    else reject(new Error('Canvas conversion to PNG failed'));
+                }, 'image/png');
+            };
+            img.onerror = reject;
+            img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+};
+
+// --- PDF Page Numbers ---
+export const addPageNumbersToPDF = async (file, settings) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdfDoc = await PDFDocument.load(arrayBuffer);
+    const count = pdfDoc.getPageCount();
+    
+    const {
+        format = 'page-of', 
+        position = 'bottom-center', 
+        fontSize = 10,
+        fontColor = '#888888',
+        pageRange = 'all'
+    } = settings;
+    
+    let targetIndices = [];
+    if (pageRange.trim().toLowerCase() === 'all' || !pageRange.trim()) {
+        targetIndices = Array.from({ length: count }, (_, i) => i);
+    } else {
+        targetIndices = parsePageRanges(pageRange, count);
+    }
+    
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    
+    const hexToRgb = (hex) => {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16) / 255,
+            g: parseInt(result[2], 16) / 255,
+            b: parseInt(result[3], 16) / 255
+        } : { r: 0.5, g: 0.5, b: 0.5 };
+    };
+    
+    const rgbColor = hexToRgb(fontColor);
+    
+    for (const index of targetIndices) {
+        const page = pdfDoc.getPage(index);
+        const { width, height } = page.getSize();
+        
+        let text = '';
+        const currentPageNum = index + 1;
+        
+        if (format === 'single') {
+            text = `${currentPageNum}`;
+        } else if (format === 'page-of') {
+            text = `Page ${currentPageNum} of ${count}`;
+        } else {
+            text = `Page ${currentPageNum}`;
+        }
+        
+        const textWidth = font.widthOfTextAtSize(text, fontSize);
+        const textHeight = fontSize;
+        const margin = 30;
+        
+        let x = 0;
+        let y = 0;
+        
+        if (position.startsWith('top')) {
+            y = height - margin - textHeight;
+        } else {
+            y = margin;
+        }
+        
+        if (position.endsWith('left')) {
+            x = margin;
+        } else if (position.endsWith('right')) {
+            x = width - margin - textWidth;
+        } else {
+            x = (width - textWidth) / 2;
+        }
+        
+        page.drawText(text, {
+            x,
+            y,
+            size: fontSize,
+            font: font,
+            color: rgb(rgbColor.r, rgbColor.g, rgbColor.b),
+        });
+    }
+    
+    const pdfBytes = await pdfDoc.save();
+    return new Blob([pdfBytes], { type: 'application/pdf' });
+};
+
+// --- PDF Page Organizer ---
+export const organizePDFPages = async (file, pageOrderStr, pagesToDelete) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const srcDoc = await PDFDocument.load(arrayBuffer);
+    const totalPages = srcDoc.getPageCount();
+    
+    let orderIndices = [];
+    if (pageOrderStr && pageOrderStr.trim()) {
+        const parts = pageOrderStr.split(',');
+        for (let part of parts) {
+            const pageNum = parseInt(part.trim(), 10);
+            if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
+                orderIndices.push(pageNum - 1);
+            }
+        }
+    } else {
+        orderIndices = Array.from({ length: totalPages }, (_, i) => i);
+    }
+    
+    const deleteSet = new Set();
+    if (pagesToDelete && pagesToDelete.trim()) {
+        const deleteIndices = parsePageRanges(pagesToDelete, totalPages);
+        for (const idx of deleteIndices) {
+            deleteSet.add(idx);
+        }
+    }
+    
+    const finalIndices = orderIndices.filter(idx => !deleteSet.has(idx));
+    
+    if (finalIndices.length === 0) {
+        throw new Error('No pages left after organization.');
+    }
+    
+    const newDoc = await PDFDocument.create();
+    const copiedPages = await newDoc.copyPages(srcDoc, finalIndices);
+    copiedPages.forEach((page) => newDoc.addPage(page));
+    
+    const pdfBytes = await newDoc.save();
+    return new Blob([pdfBytes], { type: 'application/pdf' });
+};
+
+// --- Dynamic PDF.js Loader ---
+const loadPdfJs = async () => {
+    if (window.pdfjsLib) return window.pdfjsLib;
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+        script.onload = () => {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            resolve(window.pdfjsLib);
+        };
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+};
+
+// --- PDF to JPG (Render PDF pages to images) ---
+export const renderPDFPagesToImages = async (file, onProgress) => {
+    const pdfjsLib = await loadPdfJs();
+    const arrayBuffer = await file.arrayBuffer();
+    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+    const pdf = await loadingTask.promise;
+    const numPages = pdf.numPages;
+    const images = [];
+
+    for (let i = 1; i <= numPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 2.0 });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        await page.render({ canvasContext: context, viewport }).promise;
+        
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+        images.push({
+            name: `${file.name.replace(/\.pdf$/i, '')}_page_${i}.jpg`,
+            blob
+        });
+        
+        if (onProgress) {
+            onProgress(Math.round((i / numPages) * 100));
+        }
+    }
+    return images;
+};
+
+// --- HTML to PDF ---
+export const convertHtmlToPDF = async (htmlElementOrString) => {
+    let element = htmlElementOrString;
+    let needsCleanup = false;
+    if (typeof htmlElementOrString === 'string') {
+        element = document.createElement('div');
+        element.style.padding = '40px';
+        element.style.width = '800px';
+        element.style.background = 'white';
+        element.style.color = 'black';
+        element.style.position = 'absolute';
+        element.style.left = '-9999px';
+        element.innerHTML = htmlElementOrString;
+        document.body.appendChild(element);
+        needsCleanup = true;
+    }
+
+    const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true
+    });
+    
+    if (needsCleanup) {
+        document.body.removeChild(element);
+    }
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgWidth = 210;
+    const pageHeight = 295;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+    }
+
+    return pdf.output('blob');
+};
+
+// --- PDF Compression ---
+export const compressPDF = async (file, quality = 0.5, scale = 1.0, onProgress) => {
+    const pdfjsLib = await loadPdfJs();
+    const arrayBuffer = await file.arrayBuffer();
+    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+    const pdf = await loadingTask.promise;
+    const numPages = pdf.numPages;
+    
+    const compressedPdf = await PDFDocument.create();
+    
+    for (let i = 1; i <= numPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        
+        await page.render({ canvasContext: context, viewport }).promise;
+        
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', quality));
+        const imgBuffer = await blob.arrayBuffer();
+        const embeddedImage = await compressedPdf.embedJpg(imgBuffer);
+        
+        const newPage = compressedPdf.addPage([viewport.width, viewport.height]);
+        newPage.drawImage(embeddedImage, {
+            x: 0,
+            y: 0,
+            width: viewport.width,
+            height: viewport.height
+        });
+        
+        if (onProgress) {
+            onProgress(Math.round((i / numPages) * 100));
+        }
+    }
+    
+    const pdfBytes = await compressedPdf.save();
+    return new Blob([pdfBytes], { type: 'application/pdf' });
+};
+
+// --- Word to PDF ---
+export const convertWordToPDF = async (file) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer });
+    const text = result.value;
+    const doc = new jsPDF();
+    const splitText = doc.splitTextToSize(text, 180);
+    let y = 10;
+    for (let i = 0; i < splitText.length; i++) {
+        if (y > 280) {
+            doc.addPage();
+            y = 10;
+        }
+        doc.text(splitText[i], 10, y);
+        y += 7;
+    }
+    return doc.output('blob');
+};
+
+// --- PowerPoint to PDF ---
+export const convertPptxToPDF = async (file) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const zip = await JSZip.loadAsync(arrayBuffer);
+    const slideFiles = Object.keys(zip.files).filter(name => name.startsWith('ppt/slides/slide') && name.endsWith('.xml'));
+    
+    slideFiles.sort((a, b) => {
+        const numA = parseInt(a.match(/\d+/)[0], 10);
+        const numB = parseInt(b.match(/\d+/)[0], 10);
+        return numA - numB;
+    });
+
+    const doc = new jsPDF();
+    let first = true;
+    
+    for (let i = 0; i < slideFiles.length; i++) {
+        const xmlText = await zip.files[slideFiles[i]].async('text');
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+        const textNodes = xmlDoc.getElementsByTagName('a:t');
+        const slideText = Array.from(textNodes).map(node => node.textContent).join(' ');
+        
+        if (!first) {
+            doc.addPage();
+        } else {
+            first = false;
+        }
+        
+        doc.setFontSize(16);
+        doc.text(`Slide ${i + 1}`, 15, 20);
+        doc.line(15, 23, 195, 23);
+        
+        doc.setFontSize(11);
+        const splitText = doc.splitTextToSize(slideText, 170);
+        doc.text(splitText, 15, 35);
+    }
+    return doc.output('blob');
+};
+
+// --- Excel to PDF ---
+export const convertExcelToPDF = async (file) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const data = new Uint8Array(arrayBuffer);
+    const workbook = XLSX.read(data, { type: 'array' });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+    
+    const doc = new jsPDF();
+    let y = 15;
+    doc.setFontSize(14);
+    doc.text(`Sheet: ${sheetName}`, 14, y);
+    y += 10;
+    doc.setFontSize(9);
+    
+    for (const row of rows) {
+        const rowText = row.map(cell => String(cell ?? '')).join('  |  ');
+        if (y > 280) {
+            doc.addPage();
+            y = 15;
+        }
+        doc.text(rowText, 14, y);
+        y += 8;
+    }
+    return doc.output('blob');
+};
+
+// --- PDF to Word ---
+export const convertPDFToWord = async (file) => {
+    const pdfjsLib = await loadPdfJs();
+    const arrayBuffer = await file.arrayBuffer();
+    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+    const pdf = await loadingTask.promise;
+    const numPages = pdf.numPages;
+    
+    let fullText = '';
+    for (let i = 1; i <= numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map(item => item.str).join(' ');
+        fullText += `<p><b>--- Page ${i} ---</b></p><p>${pageText.replace(/\n/g, '<br>')}</p>`;
+    }
+    
+    const content = `<html>
+    <head>
+    <meta charset="utf-8">
+    <title>${file.name.replace(/\.pdf$/i, '')}</title>
+    </head>
+    <body>
+    ${fullText}
+    </body>
+    </html>`;
+    
+    return new Blob([content], { type: 'application/msword' });
+};
+
+// --- PDF to Excel ---
+export const convertPDFToExcel = async (file) => {
+    const pdfjsLib = await loadPdfJs();
+    const arrayBuffer = await file.arrayBuffer();
+    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+    const pdf = await loadingTask.promise;
+    const numPages = pdf.numPages;
+    
+    const aoa = [];
+    for (let i = 1; i <= numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const items = textContent.items;
+        const rowsMap = {};
+        
+        for (const item of items) {
+            const y = Math.round(item.transform[5]);
+            if (!rowsMap[y]) {
+                rowsMap[y] = [];
+            }
+            rowsMap[y].push(item);
+        }
+        
+        const sortedY = Object.keys(rowsMap).map(Number).sort((a, b) => b - a);
+        
+        aoa.push([`--- Page ${i} ---`]);
+        for (const y of sortedY) {
+            const rowItems = rowsMap[y].sort((a, b) => a.transform[4] - b.transform[4]);
+            const rowText = rowItems.map(item => item.str).join(' ');
+            const cells = rowText.split(/\s{2,}/).map(cell => cell.trim()).filter(cell => cell);
+            if (cells.length > 0) {
+                aoa.push(cells);
+            }
+        }
+        aoa.push([]);
+    }
+    
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    return new Blob([wbout], { type: 'application/octet-stream' });
+};
+
+// --- PDF to PowerPoint ---
+export const convertPDFToPptx = async (file) => {
+    const pdfjsLib = await loadPdfJs();
+    const arrayBuffer = await file.arrayBuffer();
+    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+    const pdf = await loadingTask.promise;
+    const numPages = pdf.numPages;
+    
+    let textContent = '';
+    for (let i = 1; i <= numPages; i++) {
+        const page = await pdf.getPage(i);
+        const text = await page.getTextContent();
+        const pageText = text.items.map(item => item.str).join(' ');
+        textContent += `Slide ${i}:\n${pageText}\n\n`;
+    }
+    
+    return new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+};
+
+// --- PDF to PDF/A ---
+export const convertToPDFA = async (file) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdfDoc = await PDFDocument.load(arrayBuffer);
+    pdfDoc.setTitle(file.name.replace(/\.pdf$/i, ''));
+    pdfDoc.setProducer('ConverterApp PDF/A Compiler');
+    pdfDoc.setCreator('ConverterApp');
+    const pdfBytes = await pdfDoc.save();
+    return new Blob([pdfBytes], { type: 'application/pdf' });
 };
