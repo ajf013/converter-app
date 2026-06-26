@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import FilePreview from './FilePreview';
 import { Icon, Button, Header as SemanticHeader } from 'semantic-ui-react';
 import { saveAs } from 'file-saver';
 import { motion } from 'framer-motion';
@@ -70,6 +71,15 @@ const PdfToPdfA = () => {
                 <Icon name='file pdf outline' size='large' style={{ marginBottom: '10px' }} />
                 {file ? <p style={{ color: 'white', fontWeight: '600' }}>{file.name}</p> : <p>Drag & drop PDF here, or click to browse</p>}
             </div>
+            {file && (
+                <FilePreview 
+                    file={file} 
+                    onRemove={() => {
+                        setFile(null);
+                        setResultBlob(null);
+                    }} 
+                />
+            )}
 
             <div className="controls">
                 <Button 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import FilePreview from './FilePreview';
 import { Icon, Button, Header as SemanticHeader, Input, Dropdown } from 'semantic-ui-react';
 import { saveAs } from 'file-saver';
 import { motion } from 'framer-motion';
@@ -78,6 +79,15 @@ const PdfRotate = () => {
                 <Icon name='file pdf outline' size='large' style={{ marginBottom: '10px' }} />
                 {pdfFile ? <p style={{ color: 'white', fontWeight: '600' }}>{pdfFile.name}</p> : <p>Drag & drop a PDF file here, or click to browse</p>}
             </div>
+            {pdfFile && (
+                <FilePreview 
+                    file={pdfFile} 
+                    onRemove={() => {
+                        setPdfFile(null);
+                        setResultBlob(null);
+                    }} 
+                />
+            )}
 
             {pdfFile && (
                 <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '20px', textAlign: 'left' }}>

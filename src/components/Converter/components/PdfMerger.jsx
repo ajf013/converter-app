@@ -7,6 +7,75 @@ import { mergePDFs } from '../../../utils/conversionUtils';
 import { shareFile } from '../../../utils/shareUtils';
 import { addHistoryEntry } from '../../../utils/historyUtils';
 
+const loadPdfJs = async () => {
+    if (window.pdfjsLib) return window.pdfjsLib;
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+        script.onload = () => {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            resolve(window.pdfjsLib);
+        };
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+};
+
+const PdfThumbnail = ({ file }) => {
+    const canvasRef = React.useRef(null);
+    const [renderError, setRenderError] = React.useState(false);
+
+    React.useEffect(() => {
+        let active = true;
+        const render = async () => {
+            try {
+                const pdfjsLib = await loadPdfJs();
+                const arrayBuffer = await file.arrayBuffer();
+                const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+                const pdf = await loadingTask.promise;
+                const page = await pdf.getPage(1);
+                
+                const viewport = page.getViewport({ scale: 0.1 });
+                const canvas = canvasRef.current;
+                if (!canvas || !active) return;
+                
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+                await page.render(renderContext).promise;
+            } catch (err) {
+                console.error(err);
+                if (active) setRenderError(true);
+            }
+        };
+        render();
+        return () => { active = false; };
+    }, [file]);
+
+    if (renderError) {
+        return <Icon name='file pdf' color='red' />;
+    }
+
+    return (
+        <canvas 
+            ref={canvasRef} 
+            style={{ 
+                width: '22px', 
+                height: '28px', 
+                background: '#ffffff', 
+                borderRadius: '2px', 
+                boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                display: 'block'
+            }} 
+        />
+    );
+};
+
 const PdfMerger = () => {
     const [pdfFiles, setPdfFiles] = useState([]);
     const [merging, setMerging] = useState(false);
@@ -92,7 +161,7 @@ const PdfMerger = () => {
                         {pdfFiles.map((file, idx) => (
                             <List.Item key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', maxWidth: '60%', overflow: 'hidden' }}>
-                                    <Icon name='file pdf' color='red' />
+                                    <PdfThumbnail file={file} />
                                     <span style={{ color: 'white', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', fontSize: '0.9rem' }}>{file.name}</span>
                                 </div>
                                 <div style={{ display: 'flex', gap: '4px' }}>

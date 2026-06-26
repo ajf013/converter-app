@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
+import FilePreview from './FilePreview';
 import { Icon, Dropdown, Button, Header as SemanticHeader } from 'semantic-ui-react';
 import { saveAs } from 'file-saver';
 import { motion } from 'framer-motion';
@@ -73,6 +74,15 @@ const VideoExtractor = () => {
                 <input {...getVideoInput()} />
                 {videoFile ? <p>{videoFile.name}</p> : <p>Drag & Drop Video</p>}
             </div>
+            {videoFile && (
+                <FilePreview 
+                    file={videoFile} 
+                    onRemove={() => {
+                        setVideoFile(null);
+                        setExtractedAudio(null);
+                    }} 
+                />
+            )}
             <div className="controls">
                 <Dropdown selection options={audioOptions} value={extractFormat} onChange={(_, { value }) => setExtractFormat(value)} />
                 <Button primary onClick={handleExtractAudio} loading={extracting} disabled={!videoFile || !ffmpegLoaded}>Extract</Button>

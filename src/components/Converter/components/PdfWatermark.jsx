@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import FilePreview from './FilePreview';
 import { Icon, Button, Header as SemanticHeader, Input } from 'semantic-ui-react';
 import { saveAs } from 'file-saver';
 import { motion } from 'framer-motion';
@@ -139,6 +140,15 @@ const PdfWatermark = () => {
                 <Icon name='file pdf outline' size='large' style={{ marginBottom: '5px' }} />
                 {pdfFile ? <p style={{ color: 'white', fontWeight: '600', margin: 0 }}>{pdfFile.name}</p> : <p style={{ margin: 0 }}>Drag & drop target PDF here, or click</p>}
             </div>
+            {pdfFile && (
+                <FilePreview 
+                    file={pdfFile} 
+                    onRemove={() => {
+                        setPdfFile(null);
+                        setResultBlob(null);
+                    }} 
+                />
+            )}
 
             {pdfFile && (
                 <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '20px', textAlign: 'left' }}>
@@ -195,6 +205,15 @@ const PdfWatermark = () => {
                                     <p style={{ fontSize: '0.85rem', margin: 0 }}>Drag & drop image here or click</p>
                                 )}
                             </div>
+                            {watermarkImage && (
+                                <FilePreview 
+                                    file={watermarkImage} 
+                                    onRemove={() => {
+                                        setWatermarkImage(null);
+                                        setResultBlob(null);
+                                    }} 
+                                />
+                            )}
                             <div style={{ marginTop: '10px' }}>
                                 <label style={{ color: 'white', fontSize: '0.85rem', display: 'block', marginBottom: '6px', fontWeight: 'bold' }}>
                                     Image Scale ({scale.toFixed(1)}x):

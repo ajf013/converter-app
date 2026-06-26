@@ -31,6 +31,8 @@ import QrSuite from './components/QrSuite';
 import PaletteExtractor from './components/PaletteExtractor';
 import ColorConverter from './components/ColorConverter';
 import Base64Converter from './components/Base64Converter';
+import PdfCropRedact from './components/PdfCropRedact';
+import WatermarkRemover from './components/WatermarkRemover';
 import HistoryLog from './components/HistoryLog';
 import UpdateNotification from './components/UpdateNotification';
 import './Converter.css';
@@ -84,6 +86,8 @@ const Converter = () => {
                 {(activeCategory === 'all' || activeCategory === 'pdf') && <PdfSecurity />}
                 {(activeCategory === 'all' || activeCategory === 'pdf') && <PdfRotate />}
                 {(activeCategory === 'all' || activeCategory === 'pdf') && <PdfWatermark />}
+                {(activeCategory === 'all' || activeCategory === 'pdf') && <PdfCropRedact />}
+                {(activeCategory === 'all' || activeCategory === 'pdf' || activeCategory === 'document') && <WatermarkRemover />}
                 {(activeCategory === 'all' || activeCategory === 'image' || activeCategory === 'pdf' || activeCategory === 'convert-pdf') && <ImagesToPdf />}
                 {(activeCategory === 'all' || activeCategory === 'pdf') && <PdfPageNumbers />}
                 {(activeCategory === 'all' || activeCategory === 'pdf') && <PdfOrganizer />}

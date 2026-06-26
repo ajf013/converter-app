@@ -1,13 +1,16 @@
 .app-header {
-    padding: 20px 5%;
+    padding: 16px 5%;
     display: flex;
     justify-content: center;
-    backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: var(--surface);
     position: sticky;
     top: 0;
     z-index: 100;
-    border-bottom: 1px solid rgba(255, 20, 147, 0.2);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    transition: background var(--transition-speed) ease, border-bottom var(--transition-speed) ease;
 }
 
 .header-content {
@@ -21,33 +24,39 @@
 h1 {
     margin: 0;
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(90deg, #ff00cc, #333399);
+    background: var(--accent-gradient);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: 700;
-}
-
-.dark-mode h1 {
-    background: linear-gradient(90deg, #00dbde, #fc00ff);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    font-size: 1.6rem;
+    letter-spacing: -0.5px;
+    transition: background var(--transition-speed) ease;
 }
 
 .theme-toggle {
-    background: none;
-    border: none;
+    background: var(--surface-hover);
+    border: 1px solid var(--border);
     cursor: pointer;
-    color: inherit;
-    transition: transform 0.3s ease;
+    color: var(--text-primary);
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .theme-toggle:hover {
-    transform: rotate(20deg);
+    transform: rotate(45deg) scale(1.08);
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
 }
 
-.dark-mode .app-header {
-    background: rgba(0, 0, 0, 0.2);
-    border-bottom: 1px solid rgba(0, 219, 222, 0.2);
+.theme-toggle i.icon {
+    margin: 0 !important;
 }

@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
+import FilePreview from './FilePreview';
 import { Icon, Dropdown, Button, Header as SemanticHeader } from 'semantic-ui-react';
 import { saveAs } from 'file-saver';
 import { motion } from 'framer-motion';
@@ -110,6 +111,15 @@ const DocConverter = () => {
                 <input {...getDocInput()} />
                 {docFile ? <p>{docFile.name}</p> : <p>Drag & Drop Doc/XLS/PDF</p>}
             </div>
+            {docFile && (
+                <FilePreview 
+                    file={docFile} 
+                    onRemove={() => {
+                        setDocFile(null);
+                        setResultBlob(null);
+                    }} 
+                />
+            )}
             <div className="controls">
                 <Dropdown selection options={availableDocFormats} value={docFormat} onChange={(_, { value }) => setDocFormat(value)} />
                 <Button primary onClick={handleConvertDoc} loading={convertingDoc} disabled={!docFile}>Convert</Button>

@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
+import FilePreview from './FilePreview';
 import { Icon, Dropdown, Button, Header as SemanticHeader, Progress } from 'semantic-ui-react';
 import { saveAs } from 'file-saver';
 import { motion } from 'framer-motion';
@@ -95,6 +96,15 @@ const OcrConverter = () => {
                 <input {...getOcrInput()} />
                 {ocrFile ? <p>{ocrFile.name}</p> : <p>Drag & Drop Image for OCR</p>}
             </div>
+            {ocrFile && (
+                <FilePreview 
+                    file={ocrFile} 
+                    onRemove={() => {
+                        setOcrFile(null);
+                        setOcrResult(null);
+                    }} 
+                />
+            )}
             <div className="controls">
                 <Dropdown selection options={ocrOptions} value={ocrLang} onChange={(_, { value }) => setOcrLang(value)} />
                 <Button primary onClick={handleConvertOCR} loading={convertingOcr} disabled={!ocrFile}>Extract</Button>

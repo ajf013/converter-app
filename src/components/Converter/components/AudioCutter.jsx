@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
+import FilePreview from './FilePreview';
 import { Icon, Button, Header as SemanticHeader } from 'semantic-ui-react';
 import { saveAs } from 'file-saver';
 import { motion } from 'framer-motion';
@@ -105,6 +106,15 @@ const AudioCutter = () => {
                 <input {...getCutInput()} />
                 {cutFile ? <p>{cutFile.name}</p> : <p>Drag & Drop Audio to Cut</p>}
             </div>
+            {cutFile && (
+                <FilePreview 
+                    file={cutFile} 
+                    onRemove={() => {
+                        setCutFile(null);
+                        setCutResult(null);
+                    }} 
+                />
+            )}
             {audioPlayerUrl && <audio controls src={audioPlayerUrl} ref={audioRef} style={{ width: '100%', marginBottom: '10px' }} />}
             <div className="controls">
                 <div className="ui input action small">

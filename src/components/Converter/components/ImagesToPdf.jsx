@@ -7,6 +7,24 @@ import { convertImagesToPDF } from '../../../utils/conversionUtils';
 import { shareFile } from '../../../utils/shareUtils';
 import { addHistoryEntry } from '../../../utils/historyUtils';
 
+const ImageThumbnail = ({ file }) => {
+    const [src, setSrc] = React.useState('');
+    React.useEffect(() => {
+        const url = URL.createObjectURL(file);
+        setSrc(url);
+        return () => URL.revokeObjectURL(url);
+    }, [file]);
+    return src ? (
+        <img 
+            src={src} 
+            style={{ width: '28px', height: '28px', borderRadius: '4px', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.2)' }} 
+            alt="thumb" 
+        />
+    ) : (
+        <Icon name='image' color='teal' />
+    );
+};
+
 const ImagesToPdf = () => {
     const [imageFiles, setImageFiles] = useState([]);
     const [pageSize, setPageSize] = useState('fit'); // 'fit', 'a4', 'letter'
@@ -118,7 +136,7 @@ const ImagesToPdf = () => {
                             {imageFiles.map((file, idx) => (
                                 <List.Item key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', maxWidth: '60%', overflow: 'hidden' }}>
-                                        <Icon name='image' color='teal' />
+                                        <ImageThumbnail file={file} />
                                         <span style={{ color: 'white', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', fontSize: '0.85rem' }}>{file.name}</span>
                                     </div>
                                     <div style={{ display: 'flex', gap: '4px' }}>

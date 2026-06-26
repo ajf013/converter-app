@@ -995,3 +995,327 @@ export const convertToPDFA = async (file) => {
     const pdfBytes = await pdfDoc.save();
     return new Blob([pdfBytes], { type: 'application/pdf' });
 };
+
+// --- PDF Crop ---
+export const cropPDFPages = async (file, settings) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdfDoc = await PDFDocument.load(arrayBuffer);
+    const count = pdfDoc.getPageCount();
+    
+    const { 
+        pageRange = 'all', 
+        cropLeft = 0, 
+        cropRight = 0, 
+        cropTop = 0, 
+        cropBottom = 0, 
+        unit = 'percentage' 
+    } = settings;
+    
+    let targetIndices = [];
+    if (pageRange.trim().toLowerCase() === 'all' || !pageRange.trim()) {
+        targetIndices = Array.from({ length: count }, (_, i) => i);
+    } else {
+        targetIndices = parsePageRanges(pageRange, count);
+    }
+    
+    for (const index of targetIndices) {
+        if (index < 0 || index >= count) continue;
+        const page = pdfDoc.getPage(index);
+        const { width, height } = page.getSize();
+        
+        let left = Number(cropLeft);
+        let right = Number(cropRight);
+        let top = Number(cropTop);
+        let bottom = Number(cropBottom);
+        
+        if (unit === 'percentage') {
+            left = (left / 100) * width;
+            right = (right / 100) * width;
+            top = (top / 100) * height;
+            bottom = (bottom / 100) * height;
+        }
+        
+        const newX = left;
+        const newY = bottom;
+        const newWidth = width - left - right;
+        const newHeight = height - bottom - top;
+        
+        if (newWidth > 0 && newHeight > 0) {
+            page.setCropBox(newX, newY, newWidth, newHeight);
+            page.setMediaBox(newX, newY, newWidth, newHeight);
+        } else {
+            throw new Error(`Invalid crop boundaries for page ${index + 1}. Crop dimensions cannot exceed page size.`);
+        }
+    }
+    
+    const pdfBytes = await pdfDoc.save();
+    return new Blob([pdfBytes], { type: 'application/pdf' });
+};
+
+// --- PDF Erase Regions (Watermark Eraser) ---
+export const erasePDFRegions = async (file, settings) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdfDoc = await PDFDocument.load(arrayBuffer);
+    const count = pdfDoc.getPageCount();
+    
+    const { 
+        pageRange = 'all', 
+        preset = 'bottom', // 'bottom', 'top', 'custom'
+        presetValue = 20, // percentage/points to erase
+        customX = 0,
+        customY = 0,
+        customWidth = 100,
+        customHeight = 100,
+        unit = 'percentage',
+        color = '#ffffff' // white background default
+    } = settings;
+    
+    let targetIndices = [];
+    if (pageRange.trim().toLowerCase() === 'all' || !pageRange.trim()) {
+        targetIndices = Array.from({ length: count }, (_, i) => i);
+    } else {
+        targetIndices = parsePageRanges(pageRange, count);
+    }
+    
+    const hexToRgb = (hex) => {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16) / 255,
+            g: parseInt(result[2], 16) / 255,
+            b: parseInt(result[3], 16) / 255
+        } : { r: 1, g: 1, b: 1 };
+    };
+    
+    const rgbColor = hexToRgb(color);
+    
+    for (const index of targetIndices) {
+        if (index < 0 || index >= count) continue;
+        const page = pdfDoc.getPage(index);
+        const { width, height } = page.getSize();
+        
+        let rectX = 0;
+        let rectY = 0;
+        let rectWidth = 0;
+        let rectHeight = 0;
+        
+        if (preset === 'bottom') {
+            rectX = 0;
+            rectY = 0;
+            rectWidth = width;
+            rectHeight = unit === 'percentage' 
+                ? (Number(presetValue) / 100) * height 
+                : Number(presetValue);
+        } else if (preset === 'top') {
+            rectX = 0;
+            rectHeight = unit === 'percentage' 
+                ? (Number(presetValue) / 100) * height 
+                : Number(presetValue);
+            rectY = height - rectHeight;
+            rectWidth = width;
+        } else {
+            // custom region
+            let cx = Number(customX);
+            let cy = Number(customY);
+            let cw = Number(customWidth);
+            let ch = Number(customHeight);
+            
+            if (unit === 'percentage') {
+                rectX = (cx / 100) * width;
+                rectY = (cy / 100) * height;
+                rectWidth = (cw / 100) * width;
+                rectHeight = (ch / 100) * height;
+            } else {
+                rectX = cx;
+                rectY = cy;
+                rectWidth = cw;
+                rectHeight = ch;
+            }
+        }
+        
+        // draw the rectangle overlay
+        page.drawRectangle({
+            x: rectX,
+            y: rectY,
+            width: rectWidth,
+            height: rectHeight,
+            color: rgb(rgbColor.r, rgbColor.g, rgbColor.b),
+            opacity: 1.0,
+        });
+    }
+    
+    const pdfBytes = await pdfDoc.save();
+    return new Blob([pdfBytes], { type: 'application/pdf' });
+};
+
+// --- Word (DOCX) Watermark Stripper ---
+export const removeDocxWatermark = async (file, options = {}) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const zip = await JSZip.loadAsync(arrayBuffer);
+    const parser = new DOMParser();
+    const serializer = new XMLSerializer();
+
+    const {
+        removeText = true,
+        removeImage = true,
+        removeBackground = true,
+        customText = ''
+    } = options;
+
+    const xmlFiles = Object.keys(zip.files).filter(name => name.endsWith('.xml'));
+
+    for (const name of xmlFiles) {
+        let xmlText = await zip.files[name].async('text');
+        let modified = false;
+
+        if (!xmlText.includes('<v:shape') && !xmlText.includes('<w:background') && !xmlText.includes('<w:displayBackgroundShape')) {
+            continue;
+        }
+
+        const doc = parser.parseFromString(xmlText, 'application/xml');
+
+        // 1. Remove background shapes
+        if (removeBackground) {
+            const backgrounds = doc.getElementsByTagName('w:background');
+            while (backgrounds.length > 0) {
+                backgrounds[0].parentNode.removeChild(backgrounds[0]);
+                modified = true;
+            }
+            const displayBg = doc.getElementsByTagName('w:displayBackgroundShape');
+            while (displayBg.length > 0) {
+                displayBg[0].parentNode.removeChild(displayBg[0]);
+                modified = true;
+            }
+        }
+
+        // 2. Remove VML shapes (Text and Image watermarks)
+        const shapes = Array.from(doc.getElementsByTagName('v:shape'));
+        for (const shape of shapes) {
+            let shouldRemove = false;
+
+            // Check for textpath watermarks
+            const textpaths = shape.getElementsByTagName('v:textpath');
+            if (textpaths.length > 0 && removeText) {
+                if (customText) {
+                    const textStr = textpaths[0].getAttribute('string') || '';
+                    if (textStr.toLowerCase().includes(customText.toLowerCase())) {
+                        shouldRemove = true;
+                    }
+                } else {
+                    shouldRemove = true; // remove all textpath watermarks
+                }
+            }
+
+            // Check for image watermarks inside header/footer VML shapes
+            const imagedatas = shape.getElementsByTagName('v:imagedata');
+            if (imagedatas.length > 0 && removeImage && (name.includes('header') || name.includes('footer'))) {
+                const style = shape.getAttribute('style') || '';
+                if (style.includes('position:absolute') || style.includes('mso-position-horizontal:center')) {
+                    shouldRemove = true;
+                }
+            }
+
+            if (shouldRemove) {
+                shape.parentNode.removeChild(shape);
+                modified = true;
+            }
+        }
+
+        if (modified) {
+            const newXmlText = serializer.serializeToString(doc);
+            zip.file(name, newXmlText);
+        }
+    }
+
+    const outputBuffer = await zip.generateAsync({ type: 'arraybuffer' });
+    return new Blob([outputBuffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+};
+
+// --- Excel (XLSX) Watermark Stripper ---
+export const removeXlsxWatermark = async (file, options = {}) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const zip = await JSZip.loadAsync(arrayBuffer);
+    const parser = new DOMParser();
+    const serializer = new XMLSerializer();
+
+    const {
+        removeBackground = true,
+        removeDrawings = true
+    } = options;
+
+    const xmlFiles = Object.keys(zip.files).filter(name => name.endsWith('.xml'));
+
+    for (const name of xmlFiles) {
+        let xmlText = await zip.files[name].async('text');
+        let modified = false;
+
+        if (!xmlText.includes('backgroundImage') && !xmlText.includes('drawing')) {
+            continue;
+        }
+
+        const doc = parser.parseFromString(xmlText, 'application/xml');
+
+        // 1. Remove background image watermarks from sheets
+        if (removeBackground) {
+            const bgImages = doc.getElementsByTagName('backgroundImage');
+            while (bgImages.length > 0) {
+                bgImages[0].parentNode.removeChild(bgImages[0]);
+                modified = true;
+            }
+        }
+
+        if (modified) {
+            const newXmlText = serializer.serializeToString(doc);
+            zip.file(name, newXmlText);
+        }
+    }
+
+    // 2. Remove drawing overlays/pictures matching "watermark" or "background" names
+    const drawingFiles = Object.keys(zip.files).filter(name => name.startsWith('xl/drawings/drawing') && name.endsWith('.xml'));
+    for (const name of drawingFiles) {
+        let xmlText = await zip.files[name].async('text');
+        const doc = parser.parseFromString(xmlText, 'application/xml');
+        let modified = false;
+
+        const pics = Array.from(doc.getElementsByTagName('xdr:pic'));
+        for (const pic of pics) {
+            const nvPicPr = pic.getElementsByTagName('xdr:nvPicPr');
+            if (nvPicPr.length > 0) {
+                const cNvPr = nvPicPr[0].getElementsByTagName('xdr:cNvPr');
+                if (cNvPr.length > 0) {
+                    const picName = cNvPr[0].getAttribute('name') || '';
+                    if (picName.toLowerCase().includes('watermark') || picName.toLowerCase().includes('background')) {
+                        let anchor = pic.parentNode;
+                        while (anchor && anchor.nodeName !== 'xdr:twoCellAnchor' && anchor.nodeName !== 'xdr:oneCellAnchor') {
+                            anchor = anchor.parentNode;
+                        }
+                        if (anchor && anchor.parentNode) {
+                            anchor.parentNode.removeChild(anchor);
+                            modified = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (modified) {
+            const newXmlText = serializer.serializeToString(doc);
+            zip.file(name, newXmlText);
+        }
+    }
+
+    const outputBuffer = await zip.generateAsync({ type: 'arraybuffer' });
+    return new Blob([outputBuffer], { type: 'application/octet-stream' });
+};
+
+// --- Universal Controller ---
+export const removeFileWatermark = async (file, fileType, options = {}) => {
+    if (fileType === 'pdf') {
+        return erasePDFRegions(file, options);
+    } else if (fileType === 'docx') {
+        return removeDocxWatermark(file, options);
+    } else if (fileType === 'xlsx') {
+        return removeXlsxWatermark(file, options);
+    } else {
+        throw new Error('Unsupported file type for watermark removal.');
+    }
+};

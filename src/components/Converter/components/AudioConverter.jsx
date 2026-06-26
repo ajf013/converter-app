@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
+import FilePreview from './FilePreview';
 import { Icon, Dropdown, Button, Header as SemanticHeader, Progress, Message } from 'semantic-ui-react';
 import { saveAs } from 'file-saver';
 import { motion } from 'framer-motion';
@@ -84,6 +85,15 @@ const AudioConverter = () => {
                 <input {...getAudioInput()} />
                 {audioFile ? <p>{audioFile.name}</p> : <p>Drag & Drop Audio</p>}
             </div>
+            {audioFile && (
+                <FilePreview 
+                    file={audioFile} 
+                    onRemove={() => {
+                        setAudioFile(null);
+                        setConvertedAudio(null); setAudioProgress(0);
+                    }} 
+                />
+            )}
             <div className="controls">
                 <Dropdown selection options={audioOptions} value={audioFormat} onChange={(_, { value }) => setAudioFormat(value)} />
                 <Button primary onClick={handleConvertAudio} loading={convertingAudio} disabled={!audioFile || !ffmpegLoaded}>Convert</Button>

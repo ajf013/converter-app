@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
+import FilePreview from './FilePreview';
 import { Icon, Button, Header as SemanticHeader } from 'semantic-ui-react';
 import { motion } from 'framer-motion';
 import { addHistoryEntry } from '../../../utils/historyUtils';
@@ -123,6 +124,15 @@ const PaletteExtractor = () => {
                 <Icon name='image outline' size='large' style={{ marginBottom: '10px' }} />
                 {imageFile ? <p style={{ color: 'white', fontWeight: 'bold' }}>{imageFile.name}</p> : <p>Drag & drop image here, or click to browse</p>}
             </div>
+            {imageFile && (
+                <FilePreview 
+                    file={imageFile} 
+                    onRemove={() => {
+                        setImageFile(null);
+                        setPalette(null);
+                    }} 
+                />
+            )}
 
             {previewUrl && (
                 <div style={{ margin: '0 0 20px 0', width: '100%', maxHeight: '120px', overflow: 'hidden', borderRadius: '10px', display: 'flex', justifyContent: 'center' }}>

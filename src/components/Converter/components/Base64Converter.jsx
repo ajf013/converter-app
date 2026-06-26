@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import FilePreview from './FilePreview';
 import { Icon, Button, Header as SemanticHeader, Form, TextArea } from 'semantic-ui-react';
 import { saveAs } from 'file-saver';
 import { motion } from 'framer-motion';
@@ -140,6 +141,15 @@ const Base64Converter = () => {
                         <Icon name='file text outline' size='large' style={{ marginBottom: '10px' }} />
                         {encodeFile ? <p style={{ color: 'white', fontWeight: 'bold' }}>{encodeFile.name}</p> : <p>Drag & drop any file here, or browse</p>}
                     </div>
+                    {encodeFile && (
+                        <FilePreview 
+                            file={encodeFile} 
+                            onRemove={() => {
+                                setEncodeFile(null);
+                                setEncodedString('');
+                            }} 
+                        />
+                    )}
 
                     <div className="controls">
                         <Button 

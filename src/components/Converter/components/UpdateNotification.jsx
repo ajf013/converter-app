@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Icon, List } from 'semantic-ui-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const CURRENT_VERSION = '1.3.0';
+const CURRENT_VERSION = '1.4.0';
 
 const UpdateNotification = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -86,57 +86,47 @@ const UpdateNotification = () => {
                     <Modal.Content style={{ background: 'transparent', color: 'white', padding: '20px' }}>
                         <Modal.Description>
                             <p style={{ fontSize: '1.1rem', marginBottom: '18px', color: '#00dbde', fontWeight: 'bold' }}>
-                                We've added a brand new PDF conversion suite and advanced offline tools!
+                                We've added a brand new AI Watermark Remover and completely redesigned our UI & Themes!
                             </p>
                             <h4 style={{ color: 'white', marginBottom: '12px' }}>What's New:</h4>
                             
                             <List relaxed style={{ color: 'white' }}>
                                 <List.Item style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
-                                    <Icon name="exchange" color="blue" size="large" />
+                                    <Icon name="shield alternate" color="teal" size="large" />
                                     <div>
-                                        <strong>Convert PDF Tab</strong>
+                                        <strong>Universal Watermark Remover</strong>
                                         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: '2px 0 0 0' }}>
-                                            Dedicated layout tab housing Microsoft Word (.docx), Excel (.xlsx), and PowerPoint (.pptx) converters.
+                                            Strip text watermarks, backgrounds, and layout image stamps from PDF, Word (.docx), and Excel (.xlsx) files locally.
                                         </p>
                                     </div>
                                 </List.Item>
 
                                 <List.Item style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
-                                    <Icon name="file pdf outline" color="red" size="large" />
+                                    <Icon name="magic" color="blue" size="large" />
                                     <div>
-                                        <strong>PDF to Office / Image Conversions</strong>
+                                        <strong>AI-Powered Auto-Detection</strong>
                                         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: '2px 0 0 0' }}>
-                                            Extract layout paragraphs, sheets, and outline formats back into Word, Excel, PowerPoint, or JPG pages (.zip archive).
+                                            Leverage Azure OpenAI (GPT-4o) to automatically detect and align watermarks. Includes canvas scans for PDF and unzipped layouts for Word.
                                         </p>
                                     </div>
                                 </List.Item>
 
                                 <List.Item style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
-                                    <Icon name="pencil" color="teal" size="large" />
+                                    <Icon name="theme" color="purple" size="large" />
                                     <div>
-                                        <strong>Sign PDF</strong>
+                                        <strong>Redesigned Glassmorphic UI</strong>
                                         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: '2px 0 0 0' }}>
-                                            Draw your digital signature directly on canvas and stamp it on any page range with custom scaling.
+                                            Premium frosted cards, wandering background gradient blobs, dynamic hover scale lifters, and custom Semantic UI style overrides.
                                         </p>
                                     </div>
                                 </List.Item>
 
                                 <List.Item style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
-                                    <Icon name="compress" color="green" size="large" />
+                                    <Icon name="adjust" color="orange" size="large" />
                                     <div>
-                                        <strong>Compress PDF</strong>
+                                        <strong>Cosmic Dark & Alabaster Light Modes</strong>
                                         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: '2px 0 0 0' }}>
-                                            Optimize and downscale images in your PDF stream to shrink file size client-side.
-                                        </p>
-                                    </div>
-                                </List.Item>
-
-                                <List.Item style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
-                                    <Icon name="archive" color="purple" size="large" />
-                                    <div>
-                                        <strong>PDF to PDF/A</strong>
-                                        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: '2px 0 0 0' }}>
-                                            Archive your document with standard ISO-conforming PDF/A metadata headers.
+                                            Choose between a glowing dark theme or a soft paper-like light theme, both calibrated with perfect text readability and contrast.
                                         </p>
                                     </div>
                                 </List.Item>

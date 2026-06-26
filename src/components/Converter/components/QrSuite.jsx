@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
+import FilePreview from './FilePreview';
 import { Icon, Button, Header as SemanticHeader, Input, Dropdown, Form } from 'semantic-ui-react';
 import { saveAs } from 'file-saver';
 import { motion } from 'framer-motion';
@@ -379,11 +380,22 @@ const QrSuite = () => {
                     </div>
 
                     {scanMethod === 'file' ? (
-                        <div {...getScanRootProps()} className={`dropzone ${isDragScan ? 'active' : ''}`}>
-                            <input {...getScanInputProps()} />
-                            <Icon name='upload' size='large' style={{ marginBottom: '10px' }} />
-                            {scanFile ? <p style={{ color: 'white', fontWeight: 'bold' }}>{scanFile.name}</p> : <p>Drop QR code image here, or browse</p>}
-                        </div>
+                        <>
+                            <div {...getScanRootProps()} className={`dropzone ${isDragScan ? 'active' : ''}`}>
+                                <input {...getScanInputProps()} />
+                                <Icon name='upload' size='large' style={{ marginBottom: '10px' }} />
+                                {scanFile ? <p style={{ color: 'white', fontWeight: 'bold' }}>{scanFile.name}</p> : <p>Drop QR code image here, or browse</p>}
+                            </div>
+                            {scanFile && (
+                                <FilePreview 
+                                    file={scanFile} 
+                                    onRemove={() => {
+                                        setScanFile(null);
+                                        setScanResult('');
+                                    }} 
+                                />
+                            )}
+                        </>
                     ) : (
                         <div style={{ position: 'relative', width: '100%', aspectRatio: '4/3', background: '#000', borderRadius: '10px', overflow: 'hidden', marginBottom: '15px' }}>
                             <video 

@@ -25,6 +25,15 @@ A premium, all-in-one file conversion Progressive Web App (PWA) built with React
 
 ---
 
+## 🚀 What's New in Version 1.4.0 ✨
+
+* 🛡️ **Universal Watermark Remover:** Strip text watermarks, backgrounds, and layout image stamps from PDF, Word (`.docx`), and Excel (`.xlsx`) files completely locally inside the browser sandbox.
+* 🪄 **AI Auto-Detection:** Leverage Azure OpenAI (GPT-4o) integration to automatically detect watermark text, colors, and layout configurations, avoiding manual user positioning.
+* 🎨 **Redesigned Glassmorphic UI:** A visual overhaul featuring beautiful glassmorphic frosted cards, wandering background gradient blobs, and refined CSS layout variables.
+* 🌓 **Cosmic Dark & Alabaster Light Themes:** Toggle between a glowing dark theme or a soft paper-like light theme, both calibrated with perfect text readability and contrast.
+
+---
+
 ## 🚀 What's New in Version 1.3.0 ✨
 
 * 🔄 **Convert PDF Navigation Tab:** Dedicated navigation tab housing all converters.

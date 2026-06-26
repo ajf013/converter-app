@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
+import FilePreview from './FilePreview';
 import { Icon, Button, Header as SemanticHeader, Input, Dropdown } from 'semantic-ui-react';
 import { saveAs } from 'file-saver';
 import { motion } from 'framer-motion';
@@ -177,6 +178,15 @@ const PdfSign = () => {
                 <Icon name='file pdf outline' size='large' style={{ marginBottom: '5px' }} />
                 {pdfFile ? <p style={{ color: 'white', fontWeight: '600', margin: 0 }}>{pdfFile.name}</p> : <p style={{ margin: 0 }}>Drag & drop target PDF here, or click</p>}
             </div>
+            {pdfFile && (
+                <FilePreview 
+                    file={pdfFile} 
+                    onRemove={() => {
+                        setPdfFile(null);
+                        setResultBlob(null);
+                    }} 
+                />
+            )}
 
             {pdfFile && (
                 <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '20px', textAlign: 'left' }}>

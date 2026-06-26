@@ -67,12 +67,12 @@ function ReloadPrompt() {
                         'App is ready to work offline.'
                     ) : (
                         <div style={{ marginTop: '5px' }}>
-                            <p style={{ margin: '0 0 8px 0' }}>We've updated the app with advanced client-side PDF converters:</p>
+                            <p style={{ margin: '0 0 8px 0' }}>We've updated the app with new watermark and UI features:</p>
                             <ul style={{ paddingLeft: '20px', margin: '0 0 10px 0', fontSize: '0.85rem', lineHeight: '1.4' }}>
-                                <li>🔄 <strong>Convert PDF Tab:</strong> Office file converters (Word, Excel, PPTX to and from PDF).</li>
-                                <li>✍️ <strong>Sign PDF:</strong> Draw your signature and visually stamp it on PDF pages.</li>
-                                <li>🗜️ <strong>Compress PDF:</strong> Downscale and optimize images in PDFs client-side.</li>
-                                <li>🖼️ <strong>PDF to JPG:</strong> Extract and download PDF pages as JPGs inside a ZIP archive.</li>
+                                <li>🛡️ <strong>Universal Watermark Remover:</strong> Strip watermarks, backgrounds, and layout stamps from PDF, Word, and Excel files locally.</li>
+                                <li>🪄 <strong>AI Auto-Detection:</strong> Azure OpenAI (GPT-4o) integration to automatically identify and align watermarks.</li>
+                                <li>🎨 <strong>Glassmorphic UI Overhaul:</strong> Premium frosted cards, wandering background gradient blobs, and dynamic hover scale lifters.</li>
+                                <li>🌓 <strong>Dual Cosmic/Light Themes:</strong> Choose between a glowing dark theme or a soft paper-like light theme with perfect text contrast.</li>
                             </ul>
                         </div>
                     )}
