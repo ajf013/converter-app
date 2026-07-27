@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Icon, List } from 'semantic-ui-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const CURRENT_VERSION = '1.4.0';
+const CURRENT_VERSION = '1.5.0';
 
 const UpdateNotification = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -86,47 +86,67 @@ const UpdateNotification = () => {
                     <Modal.Content style={{ background: 'transparent', color: 'white', padding: '20px' }}>
                         <Modal.Description>
                             <p style={{ fontSize: '1.1rem', marginBottom: '18px', color: '#00dbde', fontWeight: 'bold' }}>
-                                We've added a brand new AI Watermark Remover and completely redesigned our UI & Themes!
+                                We've added 5 new powerful tools and completely fixed dropdown menu visibility across all devices!
                             </p>
-                            <h4 style={{ color: 'white', marginBottom: '12px' }}>What's New:</h4>
+                            <h4 style={{ color: 'white', marginBottom: '12px' }}>What's New in v1.5.0:</h4>
                             
                             <List relaxed style={{ color: 'white' }}>
                                 <List.Item style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
-                                    <Icon name="shield alternate" color="teal" size="large" />
+                                    <Icon name="compress" color="orange" size="large" />
                                     <div>
-                                        <strong>Universal Watermark Remover</strong>
+                                        <strong>Standalone Image Compressor</strong>
                                         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: '2px 0 0 0' }}>
-                                            Strip text watermarks, backgrounds, and layout image stamps from PDF, Word (.docx), and Excel (.xlsx) files locally.
+                                            Dedicated compression tool with quality presets, real-time size reduction tracking, and batch ZIP downloads.
                                         </p>
                                     </div>
                                 </List.Item>
 
                                 <List.Item style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
-                                    <Icon name="magic" color="blue" size="large" />
+                                    <Icon name="window restore" color="green" size="large" />
                                     <div>
-                                        <strong>AI-Powered Auto-Detection</strong>
+                                        <strong>Favicon & App Icon Generator</strong>
                                         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: '2px 0 0 0' }}>
-                                            Leverage Azure OpenAI (GPT-4o) to automatically detect and align watermarks. Includes canvas scans for PDF and unzipped layouts for Word.
+                                            Generate multi-resolution favicons (`16x16` to `512x512`), `site.webmanifest`, and copyable HTML link code tags.
                                         </p>
                                     </div>
                                 </List.Item>
 
                                 <List.Item style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
-                                    <Icon name="theme" color="purple" size="large" />
+                                    <Icon name="shield" color="purple" size="large" />
                                     <div>
-                                        <strong>Redesigned Glassmorphic UI</strong>
+                                        <strong>File Checksum & String Hash Generator</strong>
                                         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: '2px 0 0 0' }}>
-                                            Premium frosted cards, wandering background gradient blobs, dynamic hover scale lifters, and custom Semantic UI style overrides.
+                                            Calculate SHA-256, SHA-512, SHA-1, and MD5 hashes in real-time with an integrated Checksum Verification Matcher.
                                         </p>
                                     </div>
                                 </List.Item>
 
                                 <List.Item style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
-                                    <Icon name="adjust" color="orange" size="large" />
+                                    <Icon name="eye slash" color="teal" size="large" />
                                     <div>
-                                        <strong>Cosmic Dark & Alabaster Light Modes</strong>
+                                        <strong>EXIF Metadata & Privacy Cleaner</strong>
                                         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: '2px 0 0 0' }}>
-                                            Choose between a glowing dark theme or a soft paper-like light theme, both calibrated with perfect text readability and contrast.
+                                            Strip hidden camera info, timestamps, and GPS location tags from photos before sharing online.
+                                        </p>
+                                    </div>
+                                </List.Item>
+
+                                <List.Item style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
+                                    <Icon name="database" color="red" size="large" />
+                                    <div>
+                                        <strong>JSON / CSV / SQL Data Suite</strong>
+                                        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: '2px 0 0 0' }}>
+                                            Convert and format between CSV spreadsheet data, pretty/minified JSON arrays, and SQL INSERT statements.
+                                        </p>
+                                    </div>
+                                </List.Item>
+
+                                <List.Item style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
+                                    <Icon name="object group" color="blue" size="large" />
+                                    <div>
+                                        <strong>Dropdown UI & Visibility Fix</strong>
+                                        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', margin: '2px 0 0 0' }}>
+                                            Elevated card stacking context and solid opaque menus so dropdown options display crisp and unobscured.
                                         </p>
                                     </div>
                                 </List.Item>

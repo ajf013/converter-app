@@ -27,7 +27,6 @@ const ImageConverter = () => {
     const [customWidth, setCustomWidth] = useState('');
     const [customHeight, setCustomHeight] = useState('');
     const [maintainAspect, setMaintainAspect] = useState(true);
-    const [compressionQuality, setCompressionQuality] = useState(0.9);
 
     // Clean up object URLs on unmount
     useEffect(() => {
@@ -118,7 +117,7 @@ const ImageConverter = () => {
         const options = {
             width: optWidth,
             height: optHeight,
-            quality: Number(compressionQuality)
+            quality: 0.95
         };
 
         const convertedBlob = await convertImage(item.file, item.targetFormat, options);
@@ -214,7 +213,7 @@ const ImageConverter = () => {
             </div>
             <SemanticHeader as='h2' style={{ color: 'white' }}>Image Converter</SemanticHeader>
             <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', marginBottom: '20px' }}>
-                Convert, resize, and compress multiple images locally.
+                Convert and resize multiple images between PNG, JPG, WEBP, GIF, and BMP formats.
             </p>
             
             <div {...getRootProps()} className={`dropzone ${isDragActive ? 'active' : ''}`}>
@@ -234,7 +233,7 @@ const ImageConverter = () => {
                     onClick={() => setShowSettings(!showSettings)}
                 >
                     <Icon name={showSettings ? 'chevron up' : 'sliders'} />
-                    {showSettings ? 'Hide Resizer & Compression Settings' : 'Show Resizer & Compression Settings'}
+                    {showSettings ? 'Hide Resizer Settings' : 'Show Resizer Settings'}
                 </Button>
 
                 {showSettings && (
@@ -273,7 +272,7 @@ const ImageConverter = () => {
                         </div>
 
                         {resizeMode === 'percent' ? (
-                            <div style={{ marginBottom: '15px' }}>
+                            <div style={{ marginBottom: '5px' }}>
                                 <label style={{ color: 'white', fontSize: '0.8rem', display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                                     <span>Scale Ratio</span>
                                     <strong>{scalePercent}%</strong>
@@ -288,7 +287,7 @@ const ImageConverter = () => {
                                 />
                             </div>
                         ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '15px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '5px' }}>
                                 <div style={{ display: 'flex', gap: '10px' }}>
                                     <Input 
                                         fluid 
@@ -318,22 +317,6 @@ const ImageConverter = () => {
                                 />
                             </div>
                         )}
-
-                        <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '12px' }}>
-                            <label style={{ color: 'white', fontSize: '0.8rem', display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                <span>Compression Quality (JPG/WebP)</span>
-                                <strong>{Math.round(compressionQuality * 100)}%</strong>
-                            </label>
-                            <input 
-                                type="range" 
-                                min="0.1" 
-                                max="1.0" 
-                                step="0.05"
-                                value={compressionQuality} 
-                                onChange={(e) => setCompressionQuality(e.target.value)} 
-                                style={{ width: '100%', accentColor: '#fc00ff' }}
-                            />
-                        </div>
                     </motion.div>
                 )}
             </div>

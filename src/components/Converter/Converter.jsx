@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { Icon } from 'semantic-ui-react';
 import ImageConverter from './components/ImageConverter';
+import ImageCompressor from './components/ImageCompressor';
+import FaviconGenerator from './components/FaviconGenerator';
+import ExifCleaner from './components/ExifCleaner';
 import DocConverter from './components/DocConverter';
+import JsonCsvConverter from './components/JsonCsvConverter';
 import AudioConverter from './components/AudioConverter';
-import YoutubeConverter from './components/YoutubeConverter';
 import OcrConverter from './components/OcrConverter';
 import AudioCutter from './components/AudioCutter';
 import AudioJoiner from './components/AudioJoiner';
@@ -31,6 +34,7 @@ import QrSuite from './components/QrSuite';
 import PaletteExtractor from './components/PaletteExtractor';
 import ColorConverter from './components/ColorConverter';
 import Base64Converter from './components/Base64Converter';
+import HashGenerator from './components/HashGenerator';
 import PdfCropRedact from './components/PdfCropRedact';
 import WatermarkRemover from './components/WatermarkRemover';
 import HistoryLog from './components/HistoryLog';
@@ -44,7 +48,6 @@ const categories = [
     { id: 'pdf', label: 'PDF Utilities', icon: 'file pdf' },
     { id: 'convert-pdf', label: 'Convert PDF', icon: 'exchange' },
     { id: 'document', label: 'Documents & OCR', icon: 'file text' },
-    { id: 'youtube', label: 'YouTube Downloader', icon: 'youtube' },
     { id: 'utils', label: 'Design & Utilities', icon: 'settings' },
 ];
 
@@ -72,9 +75,12 @@ const Converter = () => {
             {/* Grid of Active Converter Tools */}
             <div className="converter-container">
                 {(activeCategory === 'all' || activeCategory === 'image') && <ImageConverter />}
+                {(activeCategory === 'all' || activeCategory === 'image') && <ImageCompressor />}
+                {(activeCategory === 'all' || activeCategory === 'image' || activeCategory === 'utils') && <FaviconGenerator />}
+                {(activeCategory === 'all' || activeCategory === 'image' || activeCategory === 'utils') && <ExifCleaner />}
                 {(activeCategory === 'all' || activeCategory === 'document') && <DocConverter />}
+                {(activeCategory === 'all' || activeCategory === 'document' || activeCategory === 'utils') && <JsonCsvConverter />}
                 {(activeCategory === 'all' || activeCategory === 'audio') && <AudioConverter />}
-                {(activeCategory === 'all' || activeCategory === 'youtube') && <YoutubeConverter />}
                 {(activeCategory === 'all' || activeCategory === 'image' || activeCategory === 'document') && <OcrConverter />}
                 {(activeCategory === 'all' || activeCategory === 'audio') && <AudioCutter />}
                 {(activeCategory === 'all' || activeCategory === 'audio') && <AudioJoiner />}
@@ -110,6 +116,7 @@ const Converter = () => {
                 {(activeCategory === 'all' || activeCategory === 'utils') && <ColorConverter />}
                 {(activeCategory === 'all' || activeCategory === 'utils') && <QrSuite />}
                 {(activeCategory === 'all' || activeCategory === 'utils') && <Base64Converter />}
+                {(activeCategory === 'all' || activeCategory === 'utils') && <HashGenerator />}
             </div>
 
             {/* Floating Settings/History Toggle Button */}

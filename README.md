@@ -25,6 +25,17 @@ A premium, all-in-one file conversion Progressive Web App (PWA) built with React
 
 ---
 
+## 🚀 What's New in Version 1.5.0 ✨
+
+* 🗜️ **Standalone Image Compressor:** Extracted image compression from Image Converter into a dedicated tool card featuring quality presets, exact percentage sliders, original vs compressed size comparison metrics, and batch ZIP export.
+* 🌐 **Favicon & App Icon Generator:** Upload any logo or image to generate multi-resolution favicons (`16x16` to `512x512`), `site.webmanifest`, and copyable HTML `<link>` code tags with ZIP download.
+* 🛡️ **File Checksum & String Hash Suite:** Calculate SHA-256, SHA-512, SHA-1, and MD5 hashes instantly with 1-click copy buttons and built-in expected checksum matching.
+* 👁️‍🗨️ **EXIF Metadata & Privacy Cleaner:** Inspect photo metadata and strip camera models, timestamps, and GPS geolocation tags client-side before sharing.
+* 📊 **JSON / CSV / SQL Data Suite:** Convert, format, and validate between CSV tables, pretty/minified JSON arrays, and SQL `INSERT INTO` statements.
+* 🎨 **Dropdown UI & Stacking Elevation:** Elevated active card stacking context (`z-index: 1000`) and solid opaque dropdown menus to ensure dropdown options display crisp and unobscured.
+
+---
+
 ## 🚀 What's New in Version 1.4.0 ✨
 
 * 🛡️ **Universal Watermark Remover:** Strip text watermarks, backgrounds, and layout image stamps from PDF, Word (`.docx`), and Excel (`.xlsx`) files completely locally inside the browser sandbox.
