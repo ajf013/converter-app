@@ -226,9 +226,9 @@ converter-app/
 When static assets change on production, the service worker detects the updated hash. `ReloadPrompt` notifies users with a custom alert listing the **v1.2.0 updates**, inviting them to tap **Update Now** to load the new code instantly, or **Hard Refresh** to force-clear the cache on any system.
 
 ### 2. Capacitor (Android/iOS) Native Updates
-To ensure native mobile users receive updates seamlessly without manually updating through the Play Store/App Store, we recommend integrating:
-* **Capgo OTA (Over-the-Air) updates:** Configured inside `capacitor.config.json` to fetch the latest production JavaScript bundle from Netlify/Vercel on app startup and refresh the webview immediately in the background.
-* **Ionic Appflow Live Updates:** Serves the new JS/HTML payload automatically to native wrappers on boot.
+To ensure native mobile users receive web-asset updates seamlessly without manually updating through the Play Store/App Store, integrate a Capacitor live-update plugin (native code/plugins still need a store build):
+* **[Capgo](https://capgo.app) (`@capgo/capacitor-updater`):** Open-source Capacitor OTA with channels, rollback, and device logs. Ship bundles from **any CI/CD** you already use (or Capgo Cloud); call `CapacitorUpdater.notifyAppReady()` after boot. Docs: https://capgo.app/docs/
+* **Ionic Appflow Live Updates:** Serves the new JS/HTML payload automatically to native wrappers on boot (Appflow walkthrough unchanged if you already use it).
 
 ---
 
