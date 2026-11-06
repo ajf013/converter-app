@@ -70,7 +70,7 @@ function ReloadPrompt() {
                             <p style={{ margin: '0 0 8px 0' }}>We've updated the app with new watermark and UI features:</p>
                             <ul style={{ paddingLeft: '20px', margin: '0 0 10px 0', fontSize: '0.85rem', lineHeight: '1.4' }}>
                                 <li>🛡️ <strong>Universal Watermark Remover:</strong> Strip watermarks, backgrounds, and layout stamps from PDF, Word, and Excel files locally.</li>
-                                <li>🪄 <strong>AI Auto-Detection:</strong> Azure OpenAI (GPT-4o) integration to automatically identify and align watermarks.</li>
+                                <li>🪄 <strong>AI Auto-Detection:</strong> Azure OpenAI (GPT-5-mini) integration to automatically identify and align watermarks.</li>
                                 <li>🎨 <strong>Glassmorphic UI Overhaul:</strong> Premium frosted cards, wandering background gradient blobs, and dynamic hover scale lifters.</li>
                                 <li>🌓 <strong>Dual Cosmic/Light Themes:</strong> Choose between a glowing dark theme or a soft paper-like light theme with perfect text contrast.</li>
                             </ul>

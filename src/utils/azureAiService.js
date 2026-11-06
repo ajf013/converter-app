@@ -45,7 +45,7 @@ const parseJsonContent = (text) => {
 };
 
 /**
- * Detect watermark coordinates on a PDF page using GPT-4o Vision
+ * Detect watermark coordinates on a PDF page using GPT-5-mini Vision
  * @param {string} imageBase64 - JPEG base64 data URL (e.g. data:image/jpeg;base64,...)
  * @returns {Promise<object>} - { found: boolean, coordinates: { x, y, w, h }, suggestedEraserColor, explanation }
  */
